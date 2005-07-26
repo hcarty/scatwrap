@@ -556,7 +556,7 @@ sub pointInside
             print "Plane Point: $planePoint - Normal: $planeNormal\n";
             print "Object: " . $object->{name} . "\n";
             print "Distance: $distance\n";
-            if ($distance < 0)
+            if ($distance > 0)
             {
                 # The point is not inside.
                 return undef;
