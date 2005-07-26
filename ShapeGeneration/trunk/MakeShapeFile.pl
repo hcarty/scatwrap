@@ -26,6 +26,17 @@ use PDL::Graphics::TriD;
 use PDL::Graphics::TriD::Image;
 
 #----------
+# A (few) global variable(s)
+#----------
+# Debugging, or no?
+my $DEBUG = undef;
+
+#----------
+# Some subroutine predeclarations.
+#----------
+sub debugPrint;
+
+#----------
 # Start of the main program.
 #----------
 
@@ -43,7 +54,7 @@ if ($shapeInfo->{error})
     die "Error loading shape:\n" . $shapeInfo->{error} . "\n";
 }
 
-print "Number of objects: " . scalar(@{$shapeInfo->{objects}}) . "\n";
+debugPrint "Number of objects: " . scalar(@{$shapeInfo->{objects}}) . "\n";
 
 # Select the dipole locations.
 createDipoles($shapeInfo, {xres => 0.5, yres => 0.5, zres => 0.5});
@@ -254,10 +265,10 @@ sub loadShape_obj_old
         chomp($line);
         if (($line =~ /^o /i) || eof(SHAPEFILE))
         {
-            print "Foo.\n";
+            debugPrint "Foo.\n";
             if (scalar(@faces) > 0)
             {
-                print "Current Object: $currentObject\n";
+                debugPrint "Current Object: $currentObject\n";
                 # As long as we're not on just starting the first object,
                 # store the current object's information and clear the
                 # temporary storage variables.
@@ -269,7 +280,7 @@ sub loadShape_obj_old
                     my ($a, $b, $c, $d) = createPlane($vertices[$face->[0]],
                                                       $vertices[$face->[1]],
                                                       $vertices[$face->[2]]);
-                    print "@{$vertices[$face->[0]]}\n";
+                    debugPrint "@{$vertices[$face->[0]]}\n";
                     # Make sure we have a normalized normal.
                     my $normal = pdl([$a, $b, $c]);
                     $normal /= $normal->sumover->dummy(0);
@@ -281,7 +292,7 @@ sub loadShape_obj_old
                         # TODO: MAKE SURE THIS IS READ IN PROPERLY!!!
                         push(@$faceVertices, $vertices[$index]);
                     }
-                    print "Face vert: " . $faceVertices->[0]->[0] . "\n";
+                    debugPrint "Face vert: " . $faceVertices->[0]->[0] . "\n";
                     push(@{$shapeInfo->{objects}->[$currentObject]},
                          { name     => $objectName,
                            plane    => { a => $a, b => $b, c => $c, d => $d },
@@ -409,14 +420,14 @@ sub loadShape
                 $currentObject = undef;
                 # Grab the new object name.
                 $currentObject->{name} = $parts[1];
-                print "Reading object: " . $currentObject->{name} . "\n";
+                debugPrint "Reading object: " . $currentObject->{name} . "\n";
             }
             elsif (lc($parts[0]) eq 'v')
             {
                 # Handle a vertex.
                 # Just grab the vertex information and push it onto the end of the list.
                 push(@vertices, [@parts[1 .. 3]]);
-                print "Vertex: @parts[1 .. 3]\n";
+                debugPrint "Vertex: @parts[1 .. 3]\n";
             }
             elsif (lc($parts[0]) eq 'f')
             {
@@ -449,13 +460,13 @@ sub loadShape
                 }
 
                 # Get the equation for the plane that makes up this face.
-                print "Using points: @{$thisFace->{vertices}->[0]}\n";
-                print "Using points: @{$thisFace->{vertices}->[1]}\n";
-                print "Using points: @{$thisFace->{vertices}->[2]}\n";
+                debugPrint "Using points: @{$thisFace->{vertices}->[0]}\n";
+                debugPrint "Using points: @{$thisFace->{vertices}->[1]}\n";
+                debugPrint "Using points: @{$thisFace->{vertices}->[2]}\n";
                 my ($a, $b, $c, $d) = createPlane($thisFace->{vertices}->[0],
                                                   $thisFace->{vertices}->[1],
                                                   $thisFace->{vertices}->[2]);
-                print "Created plane: $a $b $c $d\n";
+                debugPrint "Created plane: $a $b $c $d\n";
                 # Add the plane definition to the object.
                 $thisFace->{plane} = [$a, $b, $c, $d];
 
@@ -510,10 +521,10 @@ sub displayShape
     my $x = pdl(@a);
     my $y = pdl(@b);
     my $z = pdl(@c);
-    print "Bounding values:\n";
-    print 'x: ' . minimum($x) . ' => ' . maximum($x) . "\n";
-    print 'y: ' . minimum($y) . ' => ' . maximum($y) . "\n";
-    print 'z: ' . minimum($z) . ' => ' . maximum($z) . "\n";
+    debugPrint "Bounding values:\n";
+    debugPrint 'x: ' . minimum($x) . ' => ' . maximum($x) . "\n";
+    debugPrint 'y: ' . minimum($y) . ' => ' . maximum($y) . "\n";
+    debugPrint 'z: ' . minimum($z) . ' => ' . maximum($z) . "\n";
     points3d([$x, $y, $z]);
 }
 
@@ -535,7 +546,7 @@ sub pointInside
 {
     my ($checkPoint, $shapeInfo) = @_;
     my $checkPoint = pdl($checkPoint);
-    print "Checking point: " . $checkPoint . "\n";
+    debugPrint "Checking point: " . $checkPoint . "\n";
     foreach my $object (@{$shapeInfo->{objects}})
     {
         foreach my $face (@{$object->{faces}})
@@ -553,9 +564,9 @@ sub pointInside
             $planeNormal = $vector1 x $vector2;
             $planeNormal /= $planeNormal->sumover->dummy(0);
             my $distance = dotProduct(($checkPoint - $planePoint), $planeNormal);
-            print "Plane Point: $planePoint - Normal: $planeNormal\n";
-            print "Object: " . $object->{name} . "\n";
-            print "Distance: $distance\n";
+            debugPrint "Plane Point: $planePoint - Normal: $planeNormal\n";
+            debugPrint "Object: " . $object->{name} . "\n";
+            debugPrint "Distance: $distance\n";
             if ($distance > 0)
             {
                 # The point is not inside.
@@ -565,7 +576,7 @@ sub pointInside
     }
 
     # If we made it to here, the point is inside.
-    print "inside";
+    debugPrint "inside";
     return 1;
 }
 
@@ -586,7 +597,7 @@ sub createPlane
 {
     # Argument(s) - the 3 points that define the plane.
     my ($p1, $p2, $p3) = @_;
-    print "[@$p1] [@$p2] [@$p3] - In createPlane\n";
+    debugPrint "[@$p1] [@$p2] [@$p3] - In createPlane\n";
 
     # A x + B y + C z + D = 0 (??)
     my $D = determinant(pdl([[$p1->[0], $p2->[0], $p3->[0]],
@@ -669,14 +680,40 @@ sub createDipoles
         {
             for (my $z = $zMin->at(0); $z < $zMax->at(0); $z += $resolution->{zres})
             {
-                print "Checking: [$x, $y, $z]\n";
+                debugPrint "Checking: [$x, $y, $z]\n";
                 if (pointInside([$x, $y, $z], $shapeInfo))
                 {
                     # Record the dipole location.
-                    print "Point inside: [$x, $y, $z]\n";
+                    debugPrint "Point inside: [$x, $y, $z]\n";
                     push(@{$shapeInfo->{vertices}}, [[$x, $y, $z]]);
                 }
             }
         }
+    }
+}
+
+####
+#
+# Description:
+# Like 'print', but only works if the $DEBUG variable is set to a true value.
+#
+# Arguments:
+# Whatever you'd like to print.
+#
+# Returns:
+# Whatever 'print' returns
+# OR
+# undef if $DEBUG is false.
+#
+####
+sub debugPrint
+{
+    if ($DEBUG)
+    {
+        return print @_;
+    }
+    else
+    {
+        return undef;
     }
 }
