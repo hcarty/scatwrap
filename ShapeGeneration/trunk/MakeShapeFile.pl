@@ -24,12 +24,18 @@ use strict;
 use PDL;
 use PDL::Graphics::TriD;
 use PDL::Graphics::TriD::Image;
+# For easy display of hashes and arrays.
+use Data::Dumper;
 
 #----------
 # A (few) global variable(s)
 #----------
 # Debugging, or no?
-my $DEBUG = undef;
+my $DEBUG = 1;
+# The resolution to use when creating the dipoles.
+my $XRES = 0.25;
+my $YRES = 0.25;
+my $ZRES = 0.25;
 
 #----------
 # Some subroutine predeclarations.
@@ -57,7 +63,7 @@ if ($shapeInfo->{error})
 debugPrint "Number of objects: " . scalar(@{$shapeInfo->{objects}}) . "\n";
 
 # Select the dipole locations.
-createDipoles($shapeInfo, {xres => 0.5, yres => 0.5, zres => 0.5});
+createDipoles($shapeInfo, {xres => $XRES, yres => $YRES, zres => $ZRES});
 
 # Display the shape on screen.
 displayShape($shapeInfo);
@@ -453,6 +459,8 @@ sub loadShape
                     $parts[$i]--;
                 }
                 # Find out which vertices it uses.
+                # XXX: NOTE -- This assumes that all of the vertices have
+                #              been read in already.
                 my $thisFace;
                 foreach my $vertIndex (@parts[1 .. (scalar(@parts) - 1)])
                 {
@@ -490,6 +498,9 @@ sub loadShape
     $shapeInfo->{objects} = \@objects;
     # Record the vertex information.
     $shapeInfo->{vertices} = \@vertices;
+    
+    debugPrint "Structure of the loaded data:\n";
+    debugPrint Dumper($shapeInfo);
 
     # Return the information.
     return $shapeInfo;
@@ -510,14 +521,18 @@ sub loadShape
 sub displayShape
 {
     my $shapeInfo = shift;
-    my $vertices = $shapeInfo->{vertices};
-    my (@a, @b, @c);
-    foreach my $vertex (@$vertices)
+    debugPrint Dumper($shapeInfo->{vertices});
+    my @a;
+    my @b;
+    my @c;
+    foreach my $vertex (@{$shapeInfo->{vertices}})
     {
+        debugPrint Dumper($vertex);
         push(@a, $vertex->[0]);
         push(@b, $vertex->[1]);
         push(@c, $vertex->[2]);
     }
+    debugPrint Dumper(@a);
     my $x = pdl(@a);
     my $y = pdl(@b);
     my $z = pdl(@c);
@@ -561,13 +576,13 @@ sub pointInside
             my $point3 = pdl($face->{vertices}->[2]);
             my $vector1 = $point1 - $point2;
             my $vector2 = $point3 - $point2;
-            $planeNormal = $vector1 x $vector2;
+            $planeNormal = $vector2 x $vector1;
             $planeNormal /= $planeNormal->sumover->dummy(0);
             my $distance = dotProduct(($checkPoint - $planePoint), $planeNormal);
             debugPrint "Plane Point: $planePoint - Normal: $planeNormal\n";
             debugPrint "Object: " . $object->{name} . "\n";
             debugPrint "Distance: $distance\n";
-            if ($distance > 0)
+            if ($distance < 0)
             {
                 # The point is not inside.
                 return undef;
@@ -674,18 +689,18 @@ sub createDipoles
     my $yMax = maximum($yVals);
     my $zMin = minimum($zVals);
     my $zMax = maximum($zVals);
-    for (my $x = $xMin->at(0); $x < $xMax->at(0); $x += $resolution->{xres})
+    for (my $x = $xMin->at(0); $x <= $xMax->at(0); $x += $resolution->{xres})
     {
-        for (my $y = $yMin->at(0); $y < $yMax->at(0); $y += $resolution->{yres})
+        for (my $y = $yMin->at(0); $y <= $yMax->at(0); $y += $resolution->{yres})
         {
-            for (my $z = $zMin->at(0); $z < $zMax->at(0); $z += $resolution->{zres})
+            for (my $z = $zMin->at(0); $z <= $zMax->at(0); $z += $resolution->{zres})
             {
                 debugPrint "Checking: [$x, $y, $z]\n";
                 if (pointInside([$x, $y, $z], $shapeInfo))
                 {
                     # Record the dipole location.
                     debugPrint "Point inside: [$x, $y, $z]\n";
-                    push(@{$shapeInfo->{vertices}}, [[$x, $y, $z]]);
+                    push(@{$shapeInfo->{vertices}}, [$x, $y, $z]);
                 }
             }
         }
