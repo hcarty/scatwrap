@@ -30,11 +30,12 @@ use Data::Dumper;
 #----------
 # A (few) global variable(s)
 #----------
-# Debugging, or no?
-my $DEBUG = 1;
+# Debugging, or no?  Assume no, but it can be turned on by a command line
+# option.
+my $DEBUG = 0;
 # The resolution to use when creating the dipoles.
-my $XRES = 0.25;
-my $YRES = 0.25;
+my $XRES = 1.00;
+my $YRES = 1.00;
 my $ZRES = 0.25;
 
 #----------
@@ -52,6 +53,10 @@ if ($ARGV[0] =~ /--help/i)
     # Display the usage information, then quit.
     displayUsage();
     exit();
+}
+elsif (($ARGV[0] =~ /--debug/) || ($ARGV[1] =~ /--debug/))
+{
+    $DEBUG = 1;
 }
 
 my $shapeInfo = loadShape();
@@ -561,10 +566,9 @@ sub pointInside
 {
     my ($checkPoint, $shapeInfo) = @_;
     my $checkPoint = pdl($checkPoint);
-    debugPrint "Checking point: " . $checkPoint . "\n";
-    foreach my $object (@{$shapeInfo->{objects}})
+    OBJECT: foreach my $object (@{$shapeInfo->{objects}})
     {
-        foreach my $face (@{$object->{faces}})
+        FACE: foreach my $face (@{$object->{faces}})
         {
             my $planePoint = pdl($face->{vertices}->[0]);
             my $planeNormal = pdl($face->{plane}->[0],
@@ -576,23 +580,28 @@ sub pointInside
             my $point3 = pdl($face->{vertices}->[2]);
             my $vector1 = $point1 - $point2;
             my $vector2 = $point3 - $point2;
-            $planeNormal = $vector2 x $vector1;
-            $planeNormal /= $planeNormal->sumover->dummy(0);
+            $planeNormal = crossp($vector2, $vector1);
+            $planeNormal = norm($planeNormal);
             my $distance = dotProduct(($checkPoint - $planePoint), $planeNormal);
-            debugPrint "Plane Point: $planePoint - Normal: $planeNormal\n";
+            debugPrint "\n\nPlane Point: $planePoint\n";
+            debugPrint "Checking point: " . $checkPoint . "\n";
+            debugPrint "Face points: $point1 $point2 $point3\n";
+            debugPrint "Vector1: $vector1\n";
+            debugPrint "Vector2: $vector2\n";
+            debugPrint "Normal: $planeNormal\n";
             debugPrint "Object: " . $object->{name} . "\n";
             debugPrint "Distance: $distance\n";
-            if ($distance < 0)
-            {
-                # The point is not inside.
-                return undef;
-            }
+            # There is no point in continuing with this object if a point is
+            # outside any of the faces, so skip to the next one if/when this
+            # is the case.
+            next OBJECT if ($distance > 0);
         }
+        # If we get here, the point is inside an object.
+        return 1;
     }
 
-    # If we made it to here, the point is inside.
-    debugPrint "inside";
-    return 1;
+    # If we made it to here, the point is outside.
+    return undef;
 }
 
 ####
