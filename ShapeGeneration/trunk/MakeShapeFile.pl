@@ -2,12 +2,31 @@
 #
 # Shape generation for the ddscat program.
 #
-# TODO: Make the usage notes more verbose.
 # Usage:
 # ./TheScript.pl [input file] >shape.dat
 #
 # By Hezekiah M. Carty
 # University of Maryland Department of Meteorology
+
+#-----------------------------------------------------------------------------#
+# TODO List for the ddscat shape generation script
+# In no particular order.
+#
+# - Make the usage notes more verbose.
+# - Write proper documentation for program use.
+# - Create importers for other file formats.
+# - Actually write the routine(s) to export the data to a format usable by
+#   ddscat!
+# - Document the requirements for the input shapes, and methods for shape
+#   generation. (Each individual object must be a closed, convex hull.  If
+#   Wings3D ever goes away, Blender, AC3D, and other programs can produce
+#   appropriate output files and/or import filters can be written for those or
+#   other file formats.
+# - Add the ability to define 'normal' shapes (spheres, cubes, etc) to sprinkle
+#   about the input data.  This may make some shape combinations easier and
+#   more accurate than attempting to generate the whole thing in a 3D modeler.
+#
+#-----------------------------------------------------------------------------#
 
 #-------------------------------------------#
 #
