@@ -25,6 +25,15 @@
 # - Add the ability to define 'normal' shapes (spheres, cubes, etc) to sprinkle
 #   about the input data.  This may make some shape combinations easier and
 #   more accurate than attempting to generate the whole thing in a 3D modeler.
+# - Clean up the code.
+#   - Remove extraneous debugging printS.
+#   - Remove redundant code.
+#   - Organize some of the functions into modules, specifically the shape
+#     loading functions.
+# - Change loadShape() so that it checks the file extension (or an optional
+#   argument passed by the user) to call the proper shape loading routine.
+#   This will make the addition of other supported filetypes more straight-
+#   forward.
 #
 #-----------------------------------------------------------------------------#
 
