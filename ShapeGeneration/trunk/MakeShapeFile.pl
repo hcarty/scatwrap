@@ -98,6 +98,9 @@ debugPrint "Number of objects: " . scalar(@{$shapeInfo->{objects}}) . "\n";
 # Select the dipole locations.
 createDipoles($shapeInfo, {xres => $XRES, yres => $YRES, zres => $ZRES});
 
+# Save the shape to disk.
+saveDDAData('shape.dat', $shapeInfo);
+
 # Display the shape on screen.
 displayShape($shapeInfo);
 
@@ -424,6 +427,8 @@ sub loadShape
 
     # The data from the file, in a more usable format.
     my $shapeInfo;
+    # Save the filename we loaded this from.
+    $shapeInfo->{filename} = $filename;
     # A list of all of the objects in the file.
     my @objects;
     # A list of all of the vertices in the all of the objects.
@@ -768,4 +773,57 @@ sub debugPrint
     {
         return undef;
     }
+}
+
+####
+#
+# Description:
+# Write the generated dipole information out to disk in a formay usable by
+# ddscat.
+# WARNING: The given filename will be overwritten if it already exists.
+#
+# Arguments:
+# 1. Filename to save the data to.
+# 2. The shapeInfo hashref.
+#
+# Returns:
+# undef on success
+# OR
+# Scalar string containing the error message on failure.
+#
+####
+sub saveDDAData
+{
+    # Get the shape data.
+    my $filename = shift;
+    my $shapeInfo = shift;
+
+    # Open the file for writing.
+    # WARNING:  This will overwrite the file if it already exists.
+    open(OUTFILE, ">$filename") ||
+        return "Unable to open $filename for writing: $!";
+
+    # Print out a descriptive header.
+    print OUTFILE "Shape information for $shapeInfo->{filename}\n";
+    print OUTFILE scalar(@{$shapeInfo->{vertices}}) . " = Number of dipoles in the system\n";
+    print OUTFILE "1 1 1 = x, y, z components of a1\n";
+    print OUTFILE "1 1 1 = x, y, z components of a2\n";
+    print OUTFILE "xPos yPos zPos xComposition yComposition zComposition\n";
+    
+    # Now list out all of the vertices.
+    ##
+    # TODO: Allow for non-isotropic materials?
+    # This would require changing the '1 1 1' to some given composition
+    # values.
+    ##
+    for (my $i = 0; $i < scalar(@{$shapeInfo->{vertices}}); $i++)
+    {
+        print OUTFILE $i + 1 . " @{$shapeInfo->{vertices}->[$i]} 1 1 1\n";
+    }
+
+    # We're finished.  Close the file.
+    close(OUTFILE);
+
+    # Success!
+    return undef;
 }
