@@ -82,7 +82,15 @@ if ($ARGV[0] =~ /--help/i)
     displayUsage();
     exit();
 }
-elsif ($ARGV[4] =~ /--debug/)
+elsif (scalar(@ARGV) < 4)
+{
+    # Display the usage information, then quit.
+    displayUsage();
+    exit();
+}
+
+# Check to see if we should turn debugging output on.
+if ($ARGV[4] eq '--debugging')
 {
     $DEBUG = 1;
 }
