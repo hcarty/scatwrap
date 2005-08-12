@@ -21,7 +21,7 @@
 #   generation. (Each individual object must be a closed, convex hull.  If
 #   Wings3D ever goes away, Blender, AC3D, and other programs can produce
 #   appropriate output files and/or import filters can be written for those or
-#   other file formats.
+#   other file formats.)
 # - Add the ability to define 'normal' shapes (spheres, cubes, etc) to sprinkle
 #   about the input data.  This may make some shape combinations easier and
 #   more accurate than attempting to generate the whole thing in a 3D modeler.
@@ -142,267 +142,12 @@ sub displayUsage
     print "by Hezekiah M. Carty\n";
     print "Usage:\n";
     print "To generate shape information appropriate for the ddscat program:\n";
-    print "$0 [input file] >shape.dat\n";
-    print "The ddscat shape output will be written to STDOUT.\n\n";
+    print "$0 [input file] [x-scale] [y-scale] [z-scale]\n";
+    print "The *-scale parameters will scale the input shape by the given factor in \n";
+    print "the given directions.\n";
+    print "The ddscat shape output will be written to shape.dat in the current directory.\n\n";
     print "For this usage message:\n";
     print "$0 --help\n";
-}
-
-####
-#
-# Description:
-# Read the shape input file from disk.
-#
-# Arguments:
-# None.
-#
-# Returns:
-# A hashref holding the shape information.  TODO: Describe the structure of
-# the hashref.
-# Note - If the 'error' key is set in the returned hashref, there was an error.
-# The error key's value is a message describing the problem.
-#
-####
-sub loadShape_smf_old
-{
-    # Get the input filename from the command line.
-    my $inputFilename = $ARGV[0];
-    unless ($inputFilename)
-    {
-        # Exit the program if we don't have a filename to work with.
-        return { error => "ERROR: You must provide an input filename on the command line\n" };
-    }
-
-    # Make sure we can open the file.
-    open(SHAPEFILE, $inputFilename)
-        || return { error => "ERROR: Cannot open $inputFilename: $!\n" };
-    # Read the file in all in one shot.
-    my @shapeData = <SHAPEFILE>;
-    # Close the file.
-    close(SHAPEFILE);
-
-    my $shapeInfo;
-    my @faces;
-    my @vertices;
-    my @normals;
-    # Parse through the entire file, and take the parts we need.
-    # This parsing routine is for the plain text 'Michael Garland's format'
-    # (.smf) output from the ivcon program by John Burkardt.
-    foreach my $line (@shapeData)
-    {
-        # TODO: EVERYTHING!
-        # TODO: More specifically, change this so that it reads the information
-        # in by FACE, rather than separating the vertex and normal data away
-        # from one another.  This will take a bit more processing in here, but
-        # should make code cleaner elsewhere.
-        # Get rid of the newline character.
-        chomp($line);
-        if ($line =~ /^v /i)
-        {
-            # It's a vertex line.
-            my @parts = split(' ', $line);
-            push(@{$shapeInfo->{vertex}}, { x => $parts[1], y => $parts[2], z => $parts[3] });
-
-            # Make a PDL object out of the vertex.
-            push(@vertices, pdl(@parts[1 .. 3]));
-        }
-        elsif ($line =~ /^f /i)
-        {
-            # It's a face line.
-            my @parts = split(' ', $line);
-            # Get a slice of the array - this allows us to easily grab the
-            # proper number of vertices from the line.
-            #push(@{$shapeInfo->{face}}, @parts[1 .. (scalar(@parts) - 1)]);
-
-            # Get the (index + 1) of the vertices that d;efine this face.
-            # It's (index + 1) because Perl counts arrays from 0, but this file
-            # format counts from 1.  So adjust for this!
-            for my $i (1 .. (scalar(@parts) - 1))
-            {
-                $parts[$i] -= 1;
-            }
-            push(@faces, [@parts[1 .. (scalar(@parts) - 1)]]);
-        }
-        elsif ($line =~ /^n /i)
-        {
-            # XXX: NOTE -- It looks like there is no need to use these, as the
-            # normals here are vertex normals, not face normals.
-            # It's a normal line.
-            my @parts = split(' ', $line);
-            #push(@{$shapeInfo->{normal}}, { x => $parts[1], y => $parts[2], z => $parts[3] });
-
-            # Make a PDL object out of the normal.
-            my $tempNormal = pdl(@parts[1 .. 3]);
-            # Make sure the normal is... normalized.
-            $tempNormal /= $tempNormal->sumover->dummy(0);
-            push(@normals, $tempNormal);
-        }
-        # else -- It's a comment, or something else we're not interested in.
-    }
-    
-    # Ok, now that we have the raw shape data read in, let's make the planes
-    # we will actually use for the data generation.
-    foreach my $face (@faces)
-    {
-        my ($a, $b, $c, $d) = createPlane($vertices[$face->[0]], $vertices[$face->[1]], $vertices[$face->[2]]);
-        my $vertices;
-        for my $i (0 .. (scalar(@$face) - 1))
-        {
-            push(@$vertices, [$shapeInfo->{vertex}->[$face->[$i]]->{x},
-                              $shapeInfo->{vertex}->[$face->[$i]]->{y},
-                              $shapeInfo->{vertex}->[$face->[$i]]->{z}]);
-        }
-        push(@{$shapeInfo->{face}}, { plane    => { a => $a, b => $b, c => $c, d => $d },
-                                      vertices => $vertices,
-                                      normal   => pdl([$a->at(0), $b->at(0), $c->at(0)]) });
-    }
-
-    return $shapeInfo;
-}
-
-####
-#
-# Description:
-# Read the shape input file in Wavefront (.obj, as exported from Wings3D)
-# format from disk.
-#
-# Arguments:
-# None.
-#
-# Returns:
-# A hashref holding the shape information.
-# Note - If the 'error' key is set in the returned hashref, there was an error.
-# The error key's value is a message describing the problem.
-#
-# TODO:
-# 1. Add (better) error checking to the file reading routines.
-# 2. Describe the structure of the hashref returned by this function.
-#
-####
-sub loadShape_obj_old
-{
-    # Get the input filename from the command line.
-    my $inputFilename = $ARGV[0];
-    unless ($inputFilename)
-    {
-        # Exit the program if we don't have a filename to work with.
-        return { error => "ERROR: You must provide an input filename on the command line\n" };
-    }
-
-    # Make sure we can open the file.
-    open(SHAPEFILE, $inputFilename)
-        || return { error => "ERROR: Cannot open $inputFilename: $!\n" };
-
-    # This is the final holding place for all of the shape information in the
-    # file.
-    my $shapeInfo;
-    # Lists of faces and vertices and the nameof the current object -- scratch space more or less.
-    # We're ignoring the vertex normals, as they are not of much use to us at
-    # the moment.
-    my @faces;
-    my @vertices;
-    my $objectName;
-
-    # This keeps track of which object we're on in the file.
-    my $currentObject = 0;
-
-    # Parse through the entire file, and take the parts we need.
-    #foreach my $line (@shapeData)
-    while(<SHAPEFILE>)
-    {
-        my $line = $_;
-        # Get rid of the newline character.
-        chomp($line);
-        if (($line =~ /^o /i) || eof(SHAPEFILE))
-        {
-            debugPrint "Foo.\n";
-            if (scalar(@faces) > 0)
-            {
-                debugPrint "Current Object: $currentObject\n";
-                # As long as we're not on just starting the first object,
-                # store the current object's information and clear the
-                # temporary storage variables.
-
-                # Now that we have the raw shape data read in, let's make the planes
-                # we will actually use for the data generation.
-                foreach my $face (@faces)
-                {
-                    my ($a, $b, $c, $d) = createPlane($vertices[$face->[0]],
-                                                      $vertices[$face->[1]],
-                                                      $vertices[$face->[2]]);
-                    debugPrint "@{$vertices[$face->[0]]}\n";
-                    # Make sure we have a normalized normal.
-                    my $normal = pdl([$a, $b, $c]);
-                    $normal /= $normal->sumover->dummy(0);
-                    # Collect this face's vertices.
-                    my $numVerts = scalar(@$face);
-                    my $faceVertices;
-                    foreach my $index (@$face)
-                    {
-                        # TODO: MAKE SURE THIS IS READ IN PROPERLY!!!
-                        push(@$faceVertices, $vertices[$index]);
-                    }
-                    debugPrint "Face vert: " . $faceVertices->[0]->[0] . "\n";
-                    push(@{$shapeInfo->{objects}->[$currentObject]},
-                         { name     => $objectName,
-                           plane    => { a => $a, b => $b, c => $c, d => $d },
-                           vertices => $faceVertices,
-                           normal   => $normal });
-                }
-            }
-            # On to the new object.
-            $currentObject++;
-            # Get the name of the current object.
-            my @parts = split(' ', $line);
-            $objectName = $parts[1];
-            # Reset these temporary storage variables for use with the next object.
-            @faces = undef;
-        }
-        elsif ($line =~ /^v /i)
-        {
-            # It's a vertex line.
-            my @parts = split(' ', $line);
-            # Put all of the vertices in a big glob to make it easier to
-            # display them.
-            push(@{$shapeInfo->{vertex}}, { x => $parts[1], y => $parts[2], z => $parts[3] });
-
-            # Grab the vertex in a more immediately useful format.
-            push(@vertices, [@parts[1 .. 3]]);
-        }
-        elsif ($line =~ /^f /i)
-        {
-            # It's a face line.
-            my @parts = split(' ', $line);
-            # Get the (index + 1) of the vertices that d;efine this face.
-            # It's (index + 1) because Perl counts arrays from 0, but this file
-            # format counts from 1.  So adjust for this!
-            for my $i (1 .. (scalar(@parts) - 1))
-            {
-                # Some regexp trickery...
-                # The face lines, for some reason, have a format similar to
-                # this:
-                # f 1//1 2//2 3//3
-                # where 1, 2, and 3 are the #'s of the vertices that describe
-                # the face.  So, to strip the '//1', '//2', etc, the following
-                # regexp works wonderfully.
-                $parts[$i] =~ s:^(\d+)//\d+:$1:;
-                if ($parts[$i] =~ /[^\d]/)
-                {
-                    # This is in an attempt to pick up on bad formatting in the
-                    # file.
-                    return { error => "Badly formatted line:\n$line" };
-                }
-                $parts[$i] -= 1;
-            }
-            push(@faces, [@parts[1 .. (scalar(@parts) - 1)]]);
-        }
-        # else -- It's a comment, or something else we're not interested in.
-    }
-
-    # Close the file, because we're done with it.
-    close(SHAPEFILE);
-
-    return $shapeInfo;
 }
 
 ####
@@ -425,6 +170,8 @@ sub loadShape_obj_old
 # TODO:
 # 1. Add (better) error checking to the file reading routines.
 # 2. Describe the structure of the hashref returned by this function.
+# 3. Change this function so that it is a 'generic' shape loading function,
+#    which calls the appropriate function based on the given file's extension.
 #
 ####
 sub loadShape

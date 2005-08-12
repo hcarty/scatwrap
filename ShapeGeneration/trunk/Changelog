@@ -1,0 +1,5 @@
+2005-08-09  Hezekiah M. Carty  <hcarty@gpmwin.gsfc.nasa.gov>
+
+	* MakeShapeFile.pl
+	- Removed some extraneous, broken shape file loading functions.
+	- Slight update to the usage information displayed.
