@@ -1,4 +1,20 @@
-2005-08-09  Hezekiah M. Carty  <hcarty@gpmwin.gsfc.nasa.gov>
+2006-01-05  Hezekiah M. Carty  <hcarty@toybox44>
+
+	* Turned on warnings to help in future error capturing.  This needs to be
+	disabled for the PDL "use" statements because they throw a LOT of
+	warnings.
+	* Merged in some updates/cleaning from the Perl vs Ruby load_shape
+	experiment.  Still plenty more to do, but it's a start.
+
+2006-01-04  Hezekiah M. Carty  <hcarty@atmos.umd.edu>
+
+	* MakeShapeFile.pl
+	- Massive refactoring!  Lots more to come, certainly.
+	- Code cleaned up using perltidy (see clean_code.sh) for consistency.
+	- Moved/moving to using underscores (_) rather than CamelCase for routine
+	and variable names. (in progress...)
+
+2005-08-09  Hezekiah M. Carty  <hcarty@atmos.umd.edu>
 
 	* MakeShapeFile.pl
 	- Removed some extraneous, broken shape file loading functions.

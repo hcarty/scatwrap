@@ -3,10 +3,10 @@
 # Shape generation for the ddscat program.
 #
 # Usage:
-# ./TheScript.pl [input file] >shape.dat
+# ./TheScript.pl [input file] [scale x] [scale y] [scale z]
 #
 # By Hezekiah M. Carty
-# University of Maryland Department of Meteorology
+# University of Maryland Department of Atmospheric and Oceanic Science
 
 #-----------------------------------------------------------------------------#
 # TODO List for the ddscat shape generation script
@@ -30,10 +30,12 @@
 #   - Remove redundant code.
 #   - Organize some of the functions into modules, specifically the shape
 #     loading functions.
-# - Change loadShape() so that it checks the file extension (or an optional
+# - Change load_shape() so that it checks the file extension (or an optional
 #   argument passed by the user) to call the proper shape loading routine.
 #   This will make the addition of other supported filetypes more straight-
 #   forward.
+# - Change the debug_print() calls to warn calls so that all debugging goes to
+#   STDERR.  Or maybe not?  Debugging should probably go to STDERR though.
 #
 #-----------------------------------------------------------------------------#
 
@@ -49,9 +51,13 @@
 use strict;
 
 # Math and display routines.
+# Need to disable warnings for these to silence some noise.
+$^W = undef;
 use PDL;
 use PDL::Graphics::TriD;
 use PDL::Graphics::TriD::Image;
+$^W = 1;
+
 # For easy display of hashes and arrays.
 use Data::Dumper;
 
@@ -61,6 +67,7 @@ use Data::Dumper;
 # Debugging, or no?  Assume no, but it can be turned on by a command line
 # option.
 my $DEBUG = 0;
+
 # The resolution to use when creating the dipoles.  This should remain fixed.
 my $XRES = 1.00;
 my $YRES = 1.00;
@@ -69,48 +76,46 @@ my $ZRES = 1.00;
 #----------
 # Some subroutine predeclarations.
 #----------
-sub debugPrint;
+sub debug_print;
 
 #----------
 # Start of the main program.
 #----------
 
 # Check to make sure the user isn't just asking for usage help.
-if ($ARGV[0] =~ /--help/i)
-{
+if ( $ARGV[0] and $ARGV[0] =~ /--help/i ) {
+
     # Display the usage information, then quit.
-    displayUsage();
+    display_usage();
     exit();
 }
-elsif (scalar(@ARGV) < 4)
-{
+elsif ( scalar(@ARGV) < 4 ) {
+
     # Display the usage information, then quit.
-    displayUsage();
+    display_usage();
     exit();
 }
 
 # Check to see if we should turn debugging output on.
-if ($ARGV[4] eq '--debugging')
-{
+if ( $ARGV[4] eq '--debugging' ) {
     $DEBUG = 1;
 }
 
-my $shapeInfo = loadShape($ARGV[0], $ARGV[1], $ARGV[2], $ARGV[3]);
-if ($shapeInfo->{error})
-{
+my $shapeInfo = load_shape( $ARGV[0], $ARGV[1], $ARGV[2], $ARGV[3] );
+if ( $shapeInfo->{error} ) {
     die "Error loading shape:\n" . $shapeInfo->{error} . "\n";
 }
 
-debugPrint "Number of objects: " . scalar(@{$shapeInfo->{objects}}) . "\n";
+debug_print "Number of objects: " . scalar( @{ $shapeInfo->{objects} } ) . "\n";
 
 # Select the dipole locations.
-createDipoles($shapeInfo, {xres => $XRES, yres => $YRES, zres => $ZRES});
+create_dipoles( $shapeInfo, { xres => $XRES, yres => $YRES, zres => $ZRES } );
 
 # Save the shape to disk.
-saveDDAData('shape.dat', $shapeInfo);
+save_dda_data( 'shape.dat', $shapeInfo );
 
 # Display the shape on screen.
-displayShape($shapeInfo);
+display_shape($shapeInfo);
 
 print "Done.\n";
 
@@ -118,9 +123,8 @@ print "Done.\n";
 # The end.  Go home now.
 #-----
 
-
 #----------
-# Subroutines 
+# Subroutines
 #----------
 
 ####
@@ -135,8 +139,7 @@ print "Done.\n";
 # None.
 #
 ####
-sub displayUsage
-{
+sub display_usage {
     print "\n\n";
     print "$0\n";
     print "by Hezekiah M. Carty\n";
@@ -174,123 +177,122 @@ sub displayUsage
 #    which calls the appropriate function based on the given file's extension.
 #
 ####
-sub loadShape
-{
+sub load_shape {
+
     # Get the object scaling and filename.
-    my ($filename, $xScale, $yScale, $zScale) = @_;
-    
+    my ( $filename, $xScale, $yScale, $zScale ) = @_;
+
     # Open the file.
-    open(SHAPEFILE, $filename) ||
-        return { error => "Can't open $filename: $!" };
+    open( SHAPEFILE, $filename )
+      || return { error => "Can't open $filename: $!" };
 
     # The data from the file, in a more usable format.
     my $shapeInfo;
+
     # Save the filename we loaded this from.
     $shapeInfo->{filename} = $filename;
+
     # A list of all of the objects in the file.
     my @objects;
+
     # A list of all of the vertices in the all of the objects.
     my @vertices;
+
     # The current object we're loading from the file.
     my $currentObject;
 
     # Read in the file.
-    while(<SHAPEFILE>)
-    {
+    while (<SHAPEFILE>) {
+
         my $thisLine = $_;
-        if ($thisLine !~ /^[vfo] /i)
-        {
-            # Skip the line if it isn't a vertex, face, or new object.
-            next;
+
+        # Skip the line if it isn't a vertex, face, or new object.
+        next if ( $thisLine !~ /^[vfo] /i );
+
+        # Break the line into parts.
+        my @parts = split( ' ', $thisLine );
+
+        # Find out which type of line we're on.
+        if ( lc( $parts[0] ) eq 'o' ) {
+
+            # Handle an object.
+
+            # If we already have an object ready to go, save it.
+            push( @objects, $currentObject ) if ( exists( $currentObject->{name} ) );
+
+            # Clear out the old data.
+            $currentObject = undef;
+
+            # Grab the new object name.
+            $currentObject->{name} = $parts[1];
+            debug_print "Reading object: " . $currentObject->{name} . "\n";
         }
-        else
-        {
-            # Break the line into parts.
-            my @parts = split(' ', $thisLine);
+        elsif ( lc( $parts[0] ) eq 'v' ) {
 
-            # Find out which type of line we're on.
-            if (lc($parts[0]) eq 'o')
-            {
-                # The start of a new object.
-                if (exists($currentObject->{name}))
-                {
-                    # If we already have an object ready to go, save it.
-                    push(@objects, $currentObject);
+            # Handle a vertex.
+
+            # First, scale the vertices.
+            $parts[1] *= $xScale;
+            $parts[2] *= $yScale;
+            $parts[3] *= $zScale;
+
+            # Just grab the vertex information and push it onto the end of the list.
+            push( @vertices, [ @parts[ 1 .. 3 ] ] );
+            debug_print "Vertex: @parts[1 .. 3]\n";
+        }
+        elsif ( lc( $parts[0] ) eq 'f' ) {
+
+            # Handle a face.
+            for my $i ( 1 .. ( scalar(@parts) - 1 ) ) {
+
+                # Some regexp trickery...
+                # The face lines, for some reason, have a format similar to
+                # this:
+                # f 1//1 2//2 3//3
+                # where 1, 2, and 3 are the #'s of the vertices that describe
+                # the face.  So, to strip the '//1', '//2', etc, the following
+                # regexp works wonderfully.
+                $parts[$i] =~ s:^(\d+)//\d+:$1:;
+                if ( $parts[$i] =~ /[^\d]/ ) {
+
+                    # This is in an attempt to pick up on bad formatting in the
+                    # file.
+                    return { error => "Badly formatted line:\n$thisLine" };
                 }
 
-                # Clear out the old data.
-                $currentObject = undef;
-                # Grab the new object name.
-                $currentObject->{name} = $parts[1];
-                debugPrint "Reading object: " . $currentObject->{name} . "\n";
+                # Change the numbers to be Perl-array-offset friendly, ie
+                # count from 0 rather than 1.
+                $parts[$i]--;
             }
-            elsif (lc($parts[0]) eq 'v')
-            {
-                # Handle a vertex.
-                
-                # First, scale the vertices.
-                $parts[1] *= $xScale;
-                $parts[2] *= $yScale;
-                $parts[3] *= $zScale;
 
-                # Just grab the vertex information and push it onto the end of the list.
-                push(@vertices, [@parts[1 .. 3]]);
-                debugPrint "Vertex: @parts[1 .. 3]\n";
+            # Find out which vertices it uses.
+            # XXX: NOTE -- This assumes that all of the vertices have
+            #              been read in already.
+            my $thisFace;
+            foreach my $vertIndex ( @parts[ 1 .. ( scalar(@parts) - 1 ) ] ) {
+                push( @{ $thisFace->{vertices} }, $vertices[$vertIndex] );
             }
-            elsif (lc($parts[0]) eq 'f')
-            {
-                # Handle a face.
-                for my $i (1 .. (scalar(@parts) - 1))
-                {
-                    # Some regexp trickery...
-                    # The face lines, for some reason, have a format similar to
-                    # this:
-                    # f 1//1 2//2 3//3
-                    # where 1, 2, and 3 are the #'s of the vertices that describe
-                    # the face.  So, to strip the '//1', '//2', etc, the following
-                    # regexp works wonderfully.
-                    $parts[$i] =~ s:^(\d+)//\d+:$1:;
-                    if ($parts[$i] =~ /[^\d]/)
-                    {
-                        # This is in an attempt to pick up on bad formatting in the
-                        # file.
-                        return { error => "Badly formatted line:\n$thisLine" };
-                    }
-                    # Change the numbers to be Perl-array-offset friendly, ie
-                    # count from 0 rather than 1.
-                    $parts[$i]--;
-                }
-                # Find out which vertices it uses.
-                # XXX: NOTE -- This assumes that all of the vertices have
-                #              been read in already.
-                my $thisFace;
-                foreach my $vertIndex (@parts[1 .. (scalar(@parts) - 1)])
-                {
-                    push(@{$thisFace->{vertices}}, $vertices[$vertIndex]);
-                }
 
-                # Get the equation for the plane that makes up this face.
-                debugPrint "Using points: @{$thisFace->{vertices}->[0]}\n";
-                debugPrint "Using points: @{$thisFace->{vertices}->[1]}\n";
-                debugPrint "Using points: @{$thisFace->{vertices}->[2]}\n";
-                my ($a, $b, $c, $d) = createPlane($thisFace->{vertices}->[0],
-                                                  $thisFace->{vertices}->[1],
-                                                  $thisFace->{vertices}->[2]);
-                debugPrint "Created plane: $a $b $c $d\n";
-                # Add the plane definition to the object.
-                $thisFace->{plane} = [$a, $b, $c, $d];
+            # Get the equation for the plane that makes up this face.
+            debug_print "Using points: @{$thisFace->{vertices}->[0]}\n";
+            debug_print "Using points: @{$thisFace->{vertices}->[1]}\n";
+            debug_print "Using points: @{$thisFace->{vertices}->[2]}\n";
+            my ( $a, $b, $c, $d ) = create_plane( $thisFace->{vertices}->[0], $thisFace->{vertices}->[1], $thisFace->{vertices}->[2] );
+            debug_print "Created plane: $a $b $c $d\n";
 
-                # Add this face to the list.
-                push(@{$currentObject->{faces}}, $thisFace);
-            }
+            # Add the plane definition to the object.
+            $thisFace->{plane} = [ $a, $b, $c, $d ];
+
+            # Add this face to the list.
+            push( @{ $currentObject->{faces} }, $thisFace );
         }
     }
 
     # Push the last object onto the list.
-    if (exists($currentObject->{name}))
-    {
+    if ( exists( $currentObject->{name} ) ) {
+
         # If we already have an object ready to go, save it.
-        push(@objects, $currentObject);
+        push( @objects, $currentObject );
     }
 
     # We're done with the file, close it up.
@@ -298,11 +300,12 @@ sub loadShape
 
     # Record the object information.
     $shapeInfo->{objects} = \@objects;
+
     # Record the vertex information.
     $shapeInfo->{vertices} = \@vertices;
-    
-    debugPrint "Structure of the loaded data:\n";
-    debugPrint Dumper($shapeInfo);
+
+    debug_print "Structure of the loaded data:\n";
+    debug_print Dumper($shapeInfo);
 
     # Return the information.
     return $shapeInfo;
@@ -320,31 +323,28 @@ sub loadShape
 # None.
 #
 ####
-sub displayShape
-{
+sub display_shape {
     my $shapeInfo = shift;
-    debugPrint Dumper($shapeInfo->{vertices});
+    debug_print Dumper( $shapeInfo->{vertices} );
     my @a;
     my @b;
     my @c;
-    foreach my $vertex (@{$shapeInfo->{vertices}})
-    {
-        debugPrint Dumper($vertex);
-        push(@a, $vertex->[0]);
-        push(@b, $vertex->[1]);
-        push(@c, $vertex->[2]);
+    foreach my $vertex ( @{ $shapeInfo->{vertices} } ) {
+        debug_print Dumper($vertex);
+        push( @a, $vertex->[0] );
+        push( @b, $vertex->[1] );
+        push( @c, $vertex->[2] );
     }
-    debugPrint Dumper(@a);
+    debug_print Dumper(@a);
     my $x = pdl(@a);
     my $y = pdl(@b);
     my $z = pdl(@c);
-    debugPrint "Bounding values:\n";
-    debugPrint 'x: ' . minimum($x) . ' => ' . maximum($x) . "\n";
-    debugPrint 'y: ' . minimum($y) . ' => ' . maximum($y) . "\n";
-    debugPrint 'z: ' . minimum($z) . ' => ' . maximum($z) . "\n";
-    points3d([$x, $y, $z]);
+    debug_print "Bounding values:\n";
+    debug_print 'x: ' . minimum($x) . ' => ' . maximum($x) . "\n";
+    debug_print 'y: ' . minimum($y) . ' => ' . maximum($y) . "\n";
+    debug_print 'z: ' . minimum($z) . ' => ' . maximum($z) . "\n";
+    points3d( [ $x, $y, $z ] );
 }
-
 
 ####
 #
@@ -359,40 +359,37 @@ sub displayShape
 # None.
 #
 ####
-sub pointInside
-{
-    my ($checkPoint, $shapeInfo) = @_;
+sub point_inside {
+    my ( $checkPoint, $shapeInfo ) = @_;
     my $checkPoint = pdl($checkPoint);
-    OBJECT: foreach my $object (@{$shapeInfo->{objects}})
-    {
-        FACE: foreach my $face (@{$object->{faces}})
-        {
-            my $planePoint = pdl($face->{vertices}->[0]);
-            my $planeNormal = pdl($face->{plane}->[0],
-                                  $face->{plane}->[1],
-                                  $face->{plane}->[2]);
+    OBJECT: foreach my $object ( @{ $shapeInfo->{objects} } ) {
+        FACE: foreach my $face ( @{ $object->{faces} } ) {
+            my $planePoint = pdl( $face->{vertices}->[0] );
+            my $planeNormal = pdl( $face->{plane}->[0], $face->{plane}->[1], $face->{plane}->[2] );
             $planeNormal /= $planeNormal->sumover->dummy(0);
-            my $point1 = pdl($face->{vertices}->[0]);
-            my $point2 = pdl($face->{vertices}->[1]);
-            my $point3 = pdl($face->{vertices}->[2]);
+            my $point1  = pdl( $face->{vertices}->[0] );
+            my $point2  = pdl( $face->{vertices}->[1] );
+            my $point3  = pdl( $face->{vertices}->[2] );
             my $vector1 = $point1 - $point2;
             my $vector2 = $point3 - $point2;
-            $planeNormal = crossp($vector2, $vector1);
+            $planeNormal = crossp( $vector2, $vector1 );
             $planeNormal = norm($planeNormal);
-            my $distance = dotProduct(($checkPoint - $planePoint), $planeNormal);
-            debugPrint "\n\nPlane Point: $planePoint\n";
-            debugPrint "Checking point: " . $checkPoint . "\n";
-            debugPrint "Face points: $point1 $point2 $point3\n";
-            debugPrint "Vector1: $vector1\n";
-            debugPrint "Vector2: $vector2\n";
-            debugPrint "Normal: $planeNormal\n";
-            debugPrint "Object: " . $object->{name} . "\n";
-            debugPrint "Distance: $distance\n";
+            my $distance = dot_product( ( $checkPoint - $planePoint ), $planeNormal );
+            debug_print "\n\nPlane Point: $planePoint\n";
+            debug_print "Checking point: " . $checkPoint . "\n";
+            debug_print "Face points: $point1 $point2 $point3\n";
+            debug_print "Vector1: $vector1\n";
+            debug_print "Vector2: $vector2\n";
+            debug_print "Normal: $planeNormal\n";
+            debug_print "Object: " . $object->{name} . "\n";
+            debug_print "Distance: $distance\n";
+
             # There is no point in continuing with this object if a point is
             # outside any of the faces, so skip to the next one if/when this
             # is the case.
-            next OBJECT if ($distance > 0);
+            next OBJECT if ( $distance > 0 );
         }
+
         # If we get here, the point is inside an object.
         return 1;
     }
@@ -414,25 +411,17 @@ sub pointInside
 #    ax + by + cz + d = 0
 #
 ####
-sub createPlane
-{
+sub create_plane {
+
     # Argument(s) - the 3 points that define the plane.
-    my ($p1, $p2, $p3) = @_;
-    debugPrint "[@$p1] [@$p2] [@$p3] - In createPlane\n";
+    my ( $p1, $p2, $p3 ) = @_;
+    debug_print "[@$p1] [@$p2] [@$p3] - In create_plane\n";
 
     # A x + B y + C z + D = 0 (??)
-    my $D = determinant(pdl([[$p1->[0], $p2->[0], $p3->[0]],
-                             [$p1->[1], $p2->[1], $p3->[1]],
-                             [$p1->[2], $p2->[2], $p3->[2]]]));
-    my $A = determinant(pdl([[1, $p2->[0], $p3->[0]],
-                             [1, $p2->[1], $p3->[1]],
-                             [1, $p2->[2], $p3->[2]]]));
-    my $B = determinant(pdl([[$p1->[0], 1, $p3->[0]],
-                             [$p1->[1], 1, $p3->[1]],
-                             [$p1->[2], 1, $p3->[2]]]));
-    my $C = determinant(pdl([[$p1->[0], $p2->[0], 1],
-                             [$p1->[1], $p2->[1], 1],
-                             [$p1->[2], $p2->[2], 1]]));
+    my $D = determinant( pdl( [ [ $p1->[0], $p2->[0], $p3->[0] ], [ $p1->[1], $p2->[1], $p3->[1] ], [ $p1->[2], $p2->[2], $p3->[2] ] ] ) );
+    my $A = determinant( pdl( [ [ 1,        $p2->[0], $p3->[0] ], [ 1,        $p2->[1], $p3->[1] ], [ 1,        $p2->[2], $p3->[2] ] ] ) );
+    my $B = determinant( pdl( [ [ $p1->[0], 1,        $p3->[0] ], [ $p1->[1], 1,        $p3->[1] ], [ $p1->[2], 1,        $p3->[2] ] ] ) );
+    my $C = determinant( pdl( [ [ $p1->[0], $p2->[0], 1 ],        [ $p1->[1], $p2->[1], 1 ],        [ $p1->[2], $p2->[2], 1 ] ] ) );
 
     return $A->at(0), $B->at(0), $C->at(0), $D->at(0);
 }
@@ -449,10 +438,9 @@ sub createPlane
 # A scalar value (the dot product)
 #
 ####
-sub dotProduct
-{
-    my ($a, $b) = @_;
-    return sum($a * $b);
+sub dot_product {
+    my ( $a, $b ) = @_;
+    return sum( $a * $b );
 }
 
 ####
@@ -472,41 +460,39 @@ sub dotProduct
 # None.
 #
 ####
-sub createDipoles
-{
+sub create_dipoles {
+
     # Arguments.
-    my ($shapeInfo, $resolution) = @_;
+    my ( $shapeInfo, $resolution ) = @_;
+
     # Get the max and min range for x, y, z
     my @a;
     my @b;
-    my @c; 
-    foreach my $vertex (@{$shapeInfo->{vertices}})
-    {
-        push(@a, $vertex->[0]);
-        push(@b, $vertex->[1]);
-        push(@c, $vertex->[2]);
+    my @c;
+    foreach my $vertex ( @{ $shapeInfo->{vertices} } ) {
+        push( @a, $vertex->[0] );
+        push( @b, $vertex->[1] );
+        push( @c, $vertex->[2] );
     }
     my $xVals = pdl(@a);
     my $yVals = pdl(@b);
     my $zVals = pdl(@c);
-    my $xMin = minimum($xVals);
-    my $xMax = maximum($xVals);
-    my $yMin = minimum($yVals);
-    my $yMax = maximum($yVals);
-    my $zMin = minimum($zVals);
-    my $zMax = maximum($zVals);
-    for (my $x = $xMin->at(0); $x <= $xMax->at(0); $x += $resolution->{xres})
-    {
-        for (my $y = $yMin->at(0); $y <= $yMax->at(0); $y += $resolution->{yres})
-        {
-            for (my $z = $zMin->at(0); $z <= $zMax->at(0); $z += $resolution->{zres})
-            {
-                debugPrint "Checking: [$x, $y, $z]\n";
-                if (pointInside([$x, $y, $z], $shapeInfo))
-                {
+    my $xMin  = minimum($xVals);
+    my $xMax  = maximum($xVals);
+    my $yMin  = minimum($yVals);
+    my $yMax  = maximum($yVals);
+    my $zMin  = minimum($zVals);
+    my $zMax  = maximum($zVals);
+
+    for ( my $x = $xMin->at(0) ; $x <= $xMax->at(0) ; $x += $resolution->{xres} ) {
+        for ( my $y = $yMin->at(0) ; $y <= $yMax->at(0) ; $y += $resolution->{yres} ) {
+            for ( my $z = $zMin->at(0) ; $z <= $zMax->at(0) ; $z += $resolution->{zres} ) {
+                debug_print "Checking: [$x, $y, $z]\n";
+                if ( point_inside( [ $x, $y, $z ], $shapeInfo ) ) {
+
                     # Record the dipole location.
-                    debugPrint "Point inside: [$x, $y, $z]\n";
-                    push(@{$shapeInfo->{vertices}}, [$x, $y, $z]);
+                    debug_print "Point inside: [$x, $y, $z]\n";
+                    push( @{ $shapeInfo->{vertices} }, [ $x, $y, $z ] );
                 }
             }
         }
@@ -527,14 +513,11 @@ sub createDipoles
 # undef if $DEBUG is false.
 #
 ####
-sub debugPrint
-{
-    if ($DEBUG)
-    {
+sub debug_print {
+    if ($DEBUG) {
         return print @_;
     }
-    else
-    {
+    else {
         return undef;
     }
 }
@@ -556,24 +539,24 @@ sub debugPrint
 # Scalar string containing the error message on failure.
 #
 ####
-sub saveDDAData
-{
+sub save_dda_data {
+
     # Get the shape data.
-    my $filename = shift;
+    my $filename  = shift;
     my $shapeInfo = shift;
 
     # Convert the vertex coordinates to integer values.
     # Keep track of which coordinates we've already used, in case
     # the rounding gives up duplicates.
     my %truncatedVertices;
-    for (my $i = 0; $i < scalar(@{$shapeInfo->{vertices}}); $i++)
-    {
+    for ( my $i = 0 ; $i < scalar( @{ $shapeInfo->{vertices} } ) ; $i++ ) {
+
         # Temporary storage for the truncated coordinates.
-        my $xInt = int($shapeInfo->{vertices}->[$i]->[0]);
-        my $yInt = int($shapeInfo->{vertices}->[$i]->[1]);
-        my $zInt = int($shapeInfo->{vertices}->[$i]->[2]);
-        if ($truncatedVertices{"$xInt,$yInt,$zInt"} != 1)
-        {
+        my $xInt = int( $shapeInfo->{vertices}->[$i]->[0] );
+        my $yInt = int( $shapeInfo->{vertices}->[$i]->[1] );
+        my $zInt = int( $shapeInfo->{vertices}->[$i]->[2] );
+        if ( $truncatedVertices{"$xInt,$yInt,$zInt"} != 1 ) {
+
             # Record that this position is taken.
             $truncatedVertices{"$xInt,$yInt,$zInt"} = 1;
         }
@@ -581,16 +564,16 @@ sub saveDDAData
 
     # Open the file for writing.
     # WARNING:  This will overwrite the file if it already exists.
-    open(OUTFILE, ">$filename") ||
-        return "Unable to open $filename for writing: $!";
+    open( OUTFILE, ">$filename" )
+      || return "Unable to open $filename for writing: $!";
 
     # Print out a descriptive header.
     print OUTFILE "Shape information for $shapeInfo->{filename}\n";
-    print OUTFILE scalar(keys(%truncatedVertices)) . " = Number of dipoles in the system\n";
+    print OUTFILE scalar( keys(%truncatedVertices) ) . " = Number of dipoles in the system\n";
     print OUTFILE "1 1 1 = x, y, z components of a1\n";
     print OUTFILE "1 1 1 = x, y, z components of a2\n";
     print OUTFILE "xPos yPos zPos xComposition yComposition zComposition\n";
-    
+
     # Now list out all of the vertices.
     ##
     # TODO: Allow for non-isotropic materials?
@@ -598,16 +581,17 @@ sub saveDDAData
     # values.
     ##
     my $vertexNumber = 0;
+
     # Clear out the old vertex information.
     $shapeInfo->{vertices} = ();
-    foreach my $vertexKey (keys(%truncatedVertices))
-    {
+    foreach my $vertexKey ( keys(%truncatedVertices) ) {
+
         # Pull the coordinate data from the vertex key.
-        my @coordinate = split(',', $vertexKey);
+        my @coordinate = split( ',', $vertexKey );
         print OUTFILE ++$vertexNumber . " @coordinate 1 1 1\n";
 
         # Put the newly hacked up vertices back in to the shapeInfo hash.
-        push(@{$shapeInfo->{vertices}}, \@coordinate);
+        push( @{ $shapeInfo->{vertices} }, \@coordinate );
     }
 
     # We're finished.  Close the file.
