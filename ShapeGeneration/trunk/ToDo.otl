@@ -1,0 +1,20 @@
+-=- Code Cleanup
+	[_] Check the different routines for consistency in coordinate handling.
+	: Array vs Hash
+
+-=- New Code
+	[_] Create a database module.
+	[_] Create a graphics/display module of some sort.
+		[_] display_shape() needs to be in there.
+	[_] Use YAML for data dumping and testing.
+
+-=- Future Work
+	[_] Docs.
+		[_] API documentation.
+		[_] Program use.
+		[_] Input shape/object requirements.
+		: Closed, convex hull.
+	[_] Add the ability to load other 3d mesh file types.
+		[_] Split the loading routines in to a separate module.
+	[_] Add the ability to define extra shapes to add to the body.
+	: Spheres, cubes, etc.  Probably in a separate module?
