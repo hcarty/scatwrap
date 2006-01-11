@@ -525,7 +525,7 @@ sub debug_print {
 ####
 #
 # Description:
-# Write the generated dipole information out to disk in a formay usable by
+# Write the generated dipole information out to disk in a format usable by
 # ddscat.
 # WARNING: The given filename will be overwritten if it already exists.
 #
