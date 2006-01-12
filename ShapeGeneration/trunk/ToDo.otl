@@ -3,8 +3,18 @@
 	: Array vs Hash
 
 -=- New Code
-	[_] Create a database module.
+	[_] Create a data(base) module.
+	: This should probably be separate from the ScatWrap::Shape class
+	: implementation, ie. no inheritance between the two.  It should instead
+	: be a separate class, an object of which can be passed in to
+	: ScatWrap::Shape as a means of retrieving and saving data.
+	:
+	: Perhaps this should be a general ScatWrap::Data module rather than a
+	: database module?  It could hold input file loading routines, as well as
+	: inherit + pass on database routines for data loading/saving/etc.
 	[_] Use YAML for data dumping and testing.
+		[X] Implement in test script for ScatWrap::Shape dumping.
+		[_] Implement a YAML backend for the data(base) module.
 
 -=- Future Work
 	[_] Move to Sixxy.pm when it is available and reasonably stable.
@@ -12,6 +22,7 @@
 	[_] Create a graphics/display module of some sort.
 		[_] display_shape() needs to be in there.
 		: Use PDL::TriD or gnuplot for now.
+		[_] Export of a preview image to gif/png/jpeg/etc.
 	[_] Docs.
 		[_] API documentation.
 		[_] Program use.
