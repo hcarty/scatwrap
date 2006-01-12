@@ -15,22 +15,36 @@ use strict;
 use warnings;
 
 # Declare some subroutines.
-use subs qw( new _load_shape add_object add_vertex add_face print_shape );
+use subs qw( new            _load_shape     add_object
+             add_vertex     add_face        print_shape );
 
 #----
 # Class fields/attributes.
 #----
 field 'name';
 field 'input_file';
-field 'object_name';
 field 'scale' => { x => 1, y => 1, z => 1 };
 field 'objects' => [];
 field 'faces' => [];
 field 'vertices' => [];
 
 ####
+#
+# Description:
 # Class constructor.
-# Set some attributes and load the body information.
+#
+# Arguments: (all named)
+# input_file => Name of the input file to load and process. (OPTIONAL)
+# scale      => hashref of { x => $x_scale, y => $y_scale, z => $z_scale }
+#               Determines how much to scale the input_file data by. (OPTIONAL)
+# 
+# Note:
+# If either input_file or scale are used as arguments, then they must both be used.
+# If neither of these arguments are provided, then the item must be built by hand.
+#
+# Returns:
+# An object of ScatWrap::Shape
+# 
 ####
 sub new ( $object_class, +$input_file of Str, +$scale of Hash, +$manual of Str ) {
 
@@ -135,6 +149,8 @@ sub add_face ( $self, $parts of Array ) {
 sub add_object ( $self, $object_name of Str ) {
 
     # Save it, and generate the dipoles while we're at it.
+    # XXX: This is fixed at a 1x1x1 resolution for now, because that's what ddscat wants.
+    #      It can be changed in the future if needed, but should probably stay this way for now.
     push( @.objects, {
                         name    => $object_name,
                         faces   => [ @.faces ],
@@ -189,6 +205,7 @@ sub save_dda_data ( $self, $filename of Str ) {
     foreach my $object ( @.objects ) {
         foreach my $dipole ( @{ $object->{dipoles} } ) {
             # Generate a vertex key so that we don't duplicate points.
+            # While doing so, convert the vertices to integer values.
             my $vertex_key = join( ' ', map { int($_) } @{ $dipole } );
             $truncated_vertices{ "$vertex_key" } = 1;
         }
@@ -200,7 +217,7 @@ sub save_dda_data ( $self, $filename of Str ) {
       || die "Unable to open $filename for writing: $!";
 
     # Print out a descriptive header.
-    print OUTFILE "Shape information for " . $.filename . "\n";
+    print OUTFILE "Shape information for " . $.input_file . "\n";
     print OUTFILE scalar( keys(%truncated_vertices) ) . " = Number of dipoles in the system\n";
     print OUTFILE "1 1 1 = x, y, z components of a1\n";
     print OUTFILE "1 1 1 = x, y, z components of a2\n";

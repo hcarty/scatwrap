@@ -1,5 +1,25 @@
 2006-01-11  Hezekiah M. Carty  <hcarty@laptop44>
 
+	* Minor bugfixes to ScatWrap/Shape.pm.
+		* A few errors in the way the shape.dat information was being written
+		to disk are fixed.
+		* Removed an extraneous field (object_name) from the class.
+	* Created a stub for ScatWrap/Display.pm.
+		* It doesn't do anything yet, other than open and close a pipe to the
+		gnuplot binary, and then tell the user to use gnuplot themselves...
+	* ScatWrap/Math.pm - create_dipoles - changed the min and max values for
+	x,y,z to always be integers to avoid some potential dipole creation
+	troubles.
+	* General code cleanup, commenting and note updating.
+	* Created a stub for ScatWrap/Database.pm.
+		* It doesn't have or do anything at this point.  Just taking up space
+		as a reminder that there's still more to do.
+	* Added a small, short script to test the existing code.  Current it loads
+	a file and generates the fancy data and blasts the ddscat input out.  It
+	also dumps the object contents out to a YAML file.
+
+2006-01-10  Hezekiah M. Carty  <hcarty@laptop44>
+
 	* Crazy refactoring!
 		* Code is now split in to modules under the ScatWrap hierarchy.
 			* ScatWrap/Shape.pm houses a nifty class which loads and builds

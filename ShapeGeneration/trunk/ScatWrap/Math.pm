@@ -114,12 +114,12 @@ sub create_dipoles ( $faces of Array, $resolution of Hash ) {
     # Find the spatial exten of the object.
     foreach my $face ( @$faces ) {
         foreach my $vertex ( @{ $face->{vertices} } ) {
-            if    ( $vertex->[0] < $x_min ) { $x_min = $vertex->[0] }
-            elsif ( $vertex->[0] > $x_max ) { $x_max = $vertex->[0] }
-            if    ( $vertex->[1] < $y_min ) { $y_min = $vertex->[1] }
-            elsif ( $vertex->[1] > $y_max ) { $y_max = $vertex->[1] }
-            if    ( $vertex->[2] < $z_min ) { $z_min = $vertex->[2] }
-            elsif ( $vertex->[2] > $z_max ) { $z_max = $vertex->[2] }
+            if    ( $vertex->[0] < $x_min ) { $x_min = int( $vertex->[0] ) - 1 }
+            elsif ( $vertex->[0] > $x_max ) { $x_max = int( $vertex->[0] ) + 1 }
+            if    ( $vertex->[1] < $y_min ) { $y_min = int( $vertex->[1] ) - 1 }
+            elsif ( $vertex->[1] > $y_max ) { $y_max = int( $vertex->[1] ) + 1 }
+            if    ( $vertex->[2] < $z_min ) { $z_min = int( $vertex->[2] ) - 1 }
+            elsif ( $vertex->[2] > $z_max ) { $z_max = int( $vertex->[2] ) + 1 }
         }
     }
 
