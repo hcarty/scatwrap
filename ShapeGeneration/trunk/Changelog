@@ -1,3 +1,11 @@
+2006-01-12  Hezekiah M. Carty  <hcarty@toybox44>
+
+	* Started writing some ScatWrap/Database.pm code.  The basic
+	implementation will be a class which ScatWrap/Shape.pm inherits from.
+	More abstraction can be added later, but this should be good for now.
+	* A few extra TODO items, and minor cleanup to code layout (newlines come
+	and go!).
+
 2006-01-11  Hezekiah M. Carty  <hcarty@laptop44>
 
 	* Minor bugfixes to ScatWrap/Shape.pm.

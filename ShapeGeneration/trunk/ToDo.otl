@@ -4,13 +4,14 @@
 
 -=- New Code
 	[_] Create a database module.
-	[_] Create a graphics/display module of some sort.
-		[_] display_shape() needs to be in there.
-		: Use PDL::TriD or gnuplot for now.
 	[_] Use YAML for data dumping and testing.
 
 -=- Future Work
 	[_] Move to Sixxy.pm when it is available and reasonably stable.
+	[_] Use Class::DBI or similar for a cleaner and safer database interface.
+	[_] Create a graphics/display module of some sort.
+		[_] display_shape() needs to be in there.
+		: Use PDL::TriD or gnuplot for now.
 	[_] Docs.
 		[_] API documentation.
 		[_] Program use.

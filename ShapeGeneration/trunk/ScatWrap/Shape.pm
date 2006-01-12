@@ -61,6 +61,7 @@ sub new ( $object_class, +$input_file of Str, +$scale of Hash, +$manual of Str )
         # up to the user/caller to provide and build the appropriate data.
         $self->_load_shape();
     }
+
     return $self;
 }
 
