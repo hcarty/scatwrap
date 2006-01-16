@@ -25,6 +25,29 @@ sub new ( $object_class, $db_filename ) {
     return $self;
 }
 
+# Save/retrieve the DDA input parameters.
+sub dda_parameters ( $self, $parameters of Hash ) {
+
+    unless ($parameters) {
+        return ./get_dda_parameters();
+    }
+    else {
+        ./set_dda_parameters($parameters);
+    }
+}
+
+# Save the dda parameters to the database.
+sub set_dda_parameters ( $self, $parameters of Hash ) {
+    die "IMPLEMENT " . __PACKAGE__ . "::set_dda_parameters";
+}
+
+# Retrieve the dda parameters from the database.
+sub get_dda_parameters ( $self, $parameters of Hash ) {
+    die "IMPLEMENT " . __PACKAGE__ . "::get_dda_parameters";
+    my $db_parameters = $.dbh->selectall_arrayref($dda_parameter_select_string)
+      or die "Error accessing dda parameters: " . $dbh->errstr;
+}
+
 # Class destructor -- make sure we clean up after ourselves.
 sub DESTROY ( $self ) {
 
