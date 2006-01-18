@@ -1,3 +1,14 @@
+2006-01-17  Hezekiah M. Carty  <hcarty@toybox44>
+
+	* Started several database modules under ScatWrap/Database/*.pm which will
+	make up the final ScatWrap/Database.pm interface.
+
+2006-01-16  Hezekiah M. Carty  <hcarty@toybox44>
+
+	* Restarting ScatWrap/Database.pm using Class/DBI.pm to simplify the
+	database interface.  This should make for cleaner code, and make things
+	easier to update/maintain.
+
 2006-01-12  Hezekiah M. Carty  <hcarty@toybox44>
 
 	* Started writing some ScatWrap/Database.pm code.  The basic
