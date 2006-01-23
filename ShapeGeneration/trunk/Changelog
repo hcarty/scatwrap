@@ -1,3 +1,12 @@
+2006-01-23  Hezekiah M. Carty  <hcarty@laptop44>
+
+	* ScatWrap/Settings.pm and settings.yaml added to start the process of a
+	proper settings layout, making database changes easier and just generally
+	making the setup more future-proof.
+	* loadyaml.pl is a small test script for messing with the settings.yaml
+	file.  loadyaml.pl should probably be moved in to a toys/ directory or
+	somesuch, along with other test-but-useful scripts.
+
 2006-01-17  Hezekiah M. Carty  <hcarty@toybox44>
 
 	* Started several database modules under ScatWrap/Database/*.pm which will
