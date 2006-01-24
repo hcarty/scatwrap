@@ -1,6 +1,8 @@
 -=- Code Cleanup
 	[_] Check the different routines for consistency in coordinate handling.
 	: Array vs Hash
+	[_] Change code to use Carp::confess for errors rather than die.
+	: It's more expressive and gives a backtrace.
 
 -=- New Code
 	[_] Create a data(base) module.
