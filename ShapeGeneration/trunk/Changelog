@@ -1,3 +1,8 @@
+2006-01-24  Hezekiah M. Carty  <hcarty@0ok.org>
+
+	* Small ScatWrap/Shape.pm change - removed a stale 'use PDL;' since all of
+	that has been moved in to ScatWrap/Math.pm.
+
 2006-01-23  Hezekiah M. Carty  <hcarty@laptop44>
 
 	* ScatWrap/Settings.pm and settings.yaml added to start the process of a

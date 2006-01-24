@@ -1,8 +1,5 @@
 package ScatWrap::Shape;
 
-# Turn off warnings so that PDL won't cause troubles.
-$^W = undef;
-use PDL;
 use Data::Dumper;
 use Perl6::Attributes;
 use Perl6::Subs;
