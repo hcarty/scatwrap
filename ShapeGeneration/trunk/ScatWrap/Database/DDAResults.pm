@@ -1,4 +1,4 @@
-package ScatWrap::Database::DDAResult;
+package ScatWrap::Database::DDAResults;
 
 use base 'ScatWrap::Database::DB';
 
