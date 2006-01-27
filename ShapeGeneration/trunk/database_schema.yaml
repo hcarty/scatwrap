@@ -34,8 +34,6 @@ database_tables:
     - beta: VARCHAR(64)
     - theta: VARCHAR(64)
     - phi: VARCHAR(64)
-    - scattering_planes_table: VARCHAR(255)
-    - results_table: VARCHAR(255)
   dda_results:
     - id: INTEGER
     - name: VARCHAR(255)

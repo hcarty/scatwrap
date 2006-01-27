@@ -1,3 +1,9 @@
+2006-01-27  Hezekiah M. Carty  <hcarty@0ok.org>
+
+	* More work toward database integration.  I have decided to put of the
+	automated database building and whatnot until after everything is up and
+	working properly.
+
 2006-01-24  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* Small ScatWrap/Shape.pm change - removed a stale 'use PDL;' since all of
