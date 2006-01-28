@@ -1,3 +1,9 @@
+2006-01-28  Hezekiah M. Carty  <hcarty@0ok.org>
+
+	* Added a Class/DBI.pm class for a dda_runs table.
+	* Added a basic (and probably broken/wrong) schema in for the dda_runs
+	table.
+
 2006-01-27  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* More work toward database integration.  I have decided to put of the

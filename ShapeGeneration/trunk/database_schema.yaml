@@ -45,3 +45,8 @@ database_tables:
     - min: VARCHAR(32)
     - max: VARCHAR(32)
     - num: VARCHAR(32)
+  dda_runs:
+    - id: INTEGER
+    - parameterid: INTEGER
+    - resultid: INTEGER
+    - scatteringplaneid: INTEGER
