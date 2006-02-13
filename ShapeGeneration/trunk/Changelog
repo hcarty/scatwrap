@@ -1,3 +1,10 @@
+2006-02-13  Hezekiah M. Carty  <hcarty@0ok.org>
+
+	* Working on more database tweaks.  A little bit of cleaning up in the way
+	table column information is organized.
+	* Removed some items from the ScatWrap/Database/Parameters.pm table
+	information to make way for a Shapes table.
+
 2006-01-28  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* Added a Class/DBI.pm class for a dda_runs table.

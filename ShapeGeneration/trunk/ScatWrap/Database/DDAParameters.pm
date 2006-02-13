@@ -5,8 +5,7 @@ use base 'ScatWrap::Database::DB';
 use strict;
 use warnings;
 
-ScatWrap::DDAParameters->table('dda_parameters');
-ScatWrap::DDAParameters->columns( All => qw/
+my $columns = q/
     id
     name
     description
@@ -16,10 +15,7 @@ ScatWrap::DDAParameters->columns( All => qw/
     dipole_polarizability
     binary_dump
     netcdf
-    shape
-    shape_parameters
-    shape_description
-    shape_data
+    shapeid
     dielectric_table_names
     dielectric_table_files
     init
@@ -39,8 +35,10 @@ ScatWrap::DDAParameters->columns( All => qw/
     write_sca
     beta
     theta
-    phi / );
-ScatWrap::DDAParameters->has_a( resultid => 'ScatWrap::Database::DDAResults' );
-ScatWrap::DDAParameters->has_many( planeid => 'ScatWrap::Database::DDAScatteringPlanes' );
+    phi /;
+ScatWrap::DDAParameters->table('dda_parameters');
+ScatWrap::DDAParameters->columns( All => qq/$columns/ );
+ScatWrap::DDAParameters->has_many( resultids => 'ScatWrap::Database::DDAResults' );
+ScatWrap::DDAParameters->has_many( planeids => 'ScatWrap::Database::DDAScatteringPlanes' );
 
 1;
