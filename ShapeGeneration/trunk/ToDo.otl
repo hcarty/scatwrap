@@ -18,6 +18,14 @@
 	[_] Use YAML for data dumping and testing.
 		[X] Implement in test script for ScatWrap::Shape dumping.
 		[_] Implement a YAML backend for the data(base) module.
+		[_] Add an option to dump all generated data to YAML.
+		: This could be a sort of safety net in case something goes wrong with
+		: the database being used.  It would reduce the chances of data loss,
+		: and would allow for the system to keep functioning.
+		[_] Add the ability to import YAML formatted data into the db.
+		: This ties in to the above safety net, as well as possibly allowing
+		: people to work on their own items locally, then upload (possibly
+		: gzip'd) a complete YAML file for processing.
 
 -=- Future Work
 	[_] Move to Sixxy.pm when it is available and reasonably stable.

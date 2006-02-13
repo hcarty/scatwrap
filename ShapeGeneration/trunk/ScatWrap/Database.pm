@@ -4,6 +4,8 @@
 package ScatWrap::Database;
 
 use ScatWrap::Database::DDAParameters;
-use ScatWrap::Database::DDAResult;
+use ScatWrap::Database::DDAResults;
+use ScatWrap::Database::DDARuns;
+use ScatWrap::Database::DDAScatteringPlanes;
 
 1;

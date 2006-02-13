@@ -15,7 +15,7 @@
 	* Small ScatWrap/Shape.pm change - removed a stale 'use PDL;' since all of
 	that has been moved in to ScatWrap/Math.pm.
 
-2006-01-23  Hezekiah M. Carty  <hcarty@laptop44>
+2006-01-23  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* ScatWrap/Settings.pm and settings.yaml added to start the process of a
 	proper settings layout, making database changes easier and just generally
@@ -24,18 +24,18 @@
 	file.  loadyaml.pl should probably be moved in to a toys/ directory or
 	somesuch, along with other test-but-useful scripts.
 
-2006-01-17  Hezekiah M. Carty  <hcarty@toybox44>
+2006-01-17  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* Started several database modules under ScatWrap/Database/*.pm which will
 	make up the final ScatWrap/Database.pm interface.
 
-2006-01-16  Hezekiah M. Carty  <hcarty@toybox44>
+2006-01-16  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* Restarting ScatWrap/Database.pm using Class/DBI.pm to simplify the
 	database interface.  This should make for cleaner code, and make things
 	easier to update/maintain.
 
-2006-01-12  Hezekiah M. Carty  <hcarty@toybox44>
+2006-01-12  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* Started writing some ScatWrap/Database.pm code.  The basic
 	implementation will be a class which ScatWrap/Shape.pm inherits from.
@@ -43,7 +43,7 @@
 	* A few extra TODO items, and minor cleanup to code layout (newlines come
 	and go!).
 
-2006-01-11  Hezekiah M. Carty  <hcarty@laptop44>
+2006-01-11  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* Minor bugfixes to ScatWrap/Shape.pm.
 		* A few errors in the way the shape.dat information was being written
@@ -63,7 +63,7 @@
 	a file and generates the fancy data and blasts the ddscat input out.  It
 	also dumps the object contents out to a YAML file.
 
-2006-01-10  Hezekiah M. Carty  <hcarty@laptop44>
+2006-01-10  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* Crazy refactoring!
 		* Code is now split in to modules under the ScatWrap hierarchy.
@@ -81,7 +81,7 @@
 	* TODO list updated to hold some items which need doing.
 		* There is still a LOT to do!
 
-2006-01-05  Hezekiah M. Carty  <hcarty@toybox44>
+2006-01-05  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* Turned on warnings to help in future error capturing.  This needs to be
 	disabled for the PDL "use" statements because they throw a LOT of
@@ -89,7 +89,7 @@
 	* Merged in some updates/cleaning from the Perl vs Ruby load_shape
 	experiment.  Still plenty more to do, but it's a start.
 
-2006-01-04  Hezekiah M. Carty  <hcarty@atmos.umd.edu>
+2006-01-04  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* MakeShapeFile.pl
 	* Massive refactoring!  Lots more to come, certainly.
@@ -97,7 +97,7 @@
 	* Moved/moving to using underscores (_) rather than CamelCase for routine
 	and variable names. (in progress...)
 
-2005-08-09  Hezekiah M. Carty  <hcarty@atmos.umd.edu>
+2005-08-09  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* MakeShapeFile.pl
 	* Removed some extraneous, broken shape file loading functions.
