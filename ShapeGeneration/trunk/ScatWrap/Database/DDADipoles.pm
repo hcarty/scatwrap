@@ -1,12 +1,19 @@
-package ScatWrap::Database::DDADipoles;
+package ScatWrap::Database::DDAShapes;
 
 use base 'ScatWrap::Database::DB';
 
 use strict;
 use warnings;
 
-ScatWrap::DDADipoles->table('dda_dipoles');
-ScatWrap::DDADipoles->columns( All => qw// );
-ScatWrap::DDADipoles->has_many( parameterids => 'ScatWrap::Database::DDAParameters' );
+# The columns in this table.
+my $columns = q/
+    id
+    name
+    description
+    data /;
+
+ScatWrap::DDAShapes->table('dda_dipoles');
+ScatWrap::DDAShapes->columns( All => qq/$columns/ );
+ScatWrap::DDAShapes->has_many( parameterids => 'ScatWrap::Database::DDAParameters' );
 
 1;

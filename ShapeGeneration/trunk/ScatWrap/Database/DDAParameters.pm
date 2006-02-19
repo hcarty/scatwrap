@@ -5,6 +5,7 @@ use base 'ScatWrap::Database::DB';
 use strict;
 use warnings;
 
+# The columns in this table.
 my $columns = q/
     id
     name
@@ -37,9 +38,10 @@ my $columns = q/
     beta
     theta
     phi /;
+
 ScatWrap::DDAParameters->table('dda_parameters');
 ScatWrap::DDAParameters->columns( All => qq/$columns/ );
-ScatWrap::DDAParameters->has_a( dipoleid => 'ScatWrap::Database::DDADipoles' );
+ScatWrap::DDAParameters->has_a( dipoleid => 'ScatWrap::Database::DDAShapes' );
 ScatWrap::DDAParameters->has_many( resultids => 'ScatWrap::Database::DDAResults' );
 ScatWrap::DDAParameters->has_many( planeids => 'ScatWrap::Database::DDAScatteringPlanes' );
 #XXX: Should this be a separate table, or in here?
