@@ -20,6 +20,7 @@ my $columns = q/
     dielectric_table_files
     init
     error_tolerance
+    eta_scattering
     num_thetas
     num_phis
     wavelength_first
@@ -38,7 +39,10 @@ my $columns = q/
     phi /;
 ScatWrap::DDAParameters->table('dda_parameters');
 ScatWrap::DDAParameters->columns( All => qq/$columns/ );
+ScatWrap::DDAParameters->has_a( dipoleid => 'ScatWrap::Database::DDADipoles' );
 ScatWrap::DDAParameters->has_many( resultids => 'ScatWrap::Database::DDAResults' );
 ScatWrap::DDAParameters->has_many( planeids => 'ScatWrap::Database::DDAScatteringPlanes' );
+#XXX: Should this be a separate table, or in here?
+# ScatWrap::DDAParameters->has_many( dielectricids => 'ScatWrap::Database::DDADielectricTables' );
 
 1;

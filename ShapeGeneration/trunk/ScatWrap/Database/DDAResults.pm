@@ -6,8 +6,7 @@ use strict;
 use warnings;
 
 ScatWrap::DDAResults->table('dda_results');
-# XXX: Needs: DDAParameters (one), DDAScatteringPlanes (many), DDAResults (one)
-ScatWrap::DDAResults->columns( All => qw// ); # XXX: Fix me!
-# XXX: FINISH ME!
+ScatWrap::DDAResults->columns( All => qw// );
+ScatWrap::DDAResults->has_a( parameterid => 'ScatWrap::Database::DDAParameters' );
 
 1;
