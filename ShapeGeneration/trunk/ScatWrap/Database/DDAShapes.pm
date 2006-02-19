@@ -10,10 +10,17 @@ my $columns = q/
     id
     name
     description
+    scalex
+    scaley
+    scalez
+    origin
     data /;
 
+# Table description.
 ScatWrap::DDAShapes->table('dda_dipoles');
 ScatWrap::DDAShapes->columns( All => qq/$columns/ );
+
+# Table relationships.
 ScatWrap::DDAShapes->has_many( parameterids => 'ScatWrap::Database::DDAParameters' );
 
 1;

@@ -3,6 +3,8 @@
 # which should be used by the outside world.
 package ScatWrap::Database;
 
+use ScatWrap::Database::DB;
+use ScatWrap::Database::DDAShapes;
 use ScatWrap::Database::DDAParameters;
 use ScatWrap::Database::DDAResults;
 use ScatWrap::Database::DDARuns;

@@ -18,12 +18,10 @@ my $columns = q/
     netcdf
     shapeid
     dielectric_table_names
-    dielectric_table_files
+    dielectric_table_data
     init
     error_tolerance
     eta_scattering
-    num_thetas
-    num_phis
     wavelength_first
     wavelength_last
     wavelength_num
@@ -37,14 +35,20 @@ my $columns = q/
     write_sca
     beta
     theta
-    phi /;
+    phi
+    iwav0
+    irad0
+    iori0
+    num_reported_elements
+    reported_elements_indices /;
 
+# Table description.
 ScatWrap::DDAParameters->table('dda_parameters');
 ScatWrap::DDAParameters->columns( All => qq/$columns/ );
-ScatWrap::DDAParameters->has_a( dipoleid => 'ScatWrap::Database::DDAShapes' );
+
+# Data relationships.
+ScatWrap::DDAParameters->has_a( shapeid => 'ScatWrap::Database::DDAShapes' );
 ScatWrap::DDAParameters->has_many( resultids => 'ScatWrap::Database::DDAResults' );
 ScatWrap::DDAParameters->has_many( planeids => 'ScatWrap::Database::DDAScatteringPlanes' );
-#XXX: Should this be a separate table, or in here?
-# ScatWrap::DDAParameters->has_many( dielectricids => 'ScatWrap::Database::DDADielectricTables' );
 
 1;

@@ -184,7 +184,8 @@ sub print_shape ( $self ) {
 #
 # Description:
 # Write the generated dipole information out to disk in a format usable by
-# ddscat.
+# ddscat.  This should generally be used for writing out a 'shape.dat' file
+# for use by ddscat.
 # WARNING: The given filename will be overwritten if it already exists.
 #
 # Arguments:
@@ -219,7 +220,7 @@ sub save_dda_data ( $self, $filename of Str ) {
     print OUTFILE scalar( keys(%truncated_vertices) ) . " = Number of dipoles in the system\n";
     print OUTFILE "1 1 1 = x, y, z components of a1\n";
     print OUTFILE "1 1 1 = x, y, z components of a2\n";
-    print OUTFILE "xPos yPos zPos xComposition yComposition zComposition\n";
+    print OUTFILE "Dipole xPos yPos zPos xComposition yComposition zComposition\n";
 
     # Now list out all of the vertices.
     ##
