@@ -79,6 +79,8 @@ sub new ( $object_class, +$input_file of Str, +$scale of Hash, +$manual of Str )
 # TODO: Change this function so that it is a 'generic' shape loading
 #       function, which calls the appropriate function based on the given
 #       file's extension.
+# TODO: Allow the user to pass in a blob of text containing the shape
+#       information, to make web life easier.
 #
 ####
 sub _load_shape ( $self ) {
@@ -194,24 +196,22 @@ sub print_shape ( $self ) {
 # Returns:
 # dies on failure.  Use eval for error checking.
 #
+# TODO: Convert this to use Template::Toolkit or something similar.
+#
 ####
 sub save_dda_data ( $self, $filename of Str ) {
 
     # Convert the vertex coordinates to integer values.
-    # Use a hash to keep track of which coordinates we've already used, in case
-    # the rounding gives duplicates.
     my %truncated_vertices;
     foreach my $object ( @.objects ) {
         foreach my $dipole ( @{ $object->{dipoles} } ) {
             # Generate a vertex key so that we don't duplicate points.
-            # While doing so, convert the vertices to integer values.
             my $vertex_key = join( ' ', map { int($_) } @{ $dipole } );
             $truncated_vertices{ "$vertex_key" } = 1;
         }
     }
 
-    # Open the file for writing.
-    # WARNING: This will overwrite the file if it already exists.
+    # Open the file for writing.  Overwrite if it already exists.
     open( OUTFILE, ">$filename" )
       || die "Unable to open $filename for writing: $!";
 
@@ -223,13 +223,8 @@ sub save_dda_data ( $self, $filename of Str ) {
     print OUTFILE "Dipole xPos yPos zPos xComposition yComposition zComposition\n";
 
     # Now list out all of the vertices.
-    ##
-    # TODO: Allow for non-isotropic materials?
-    # This would require changing the $material = '1 1 1' to some given
-    # composition values.
-    ##
     my $vertex_number = 0;
-    my $material = '1 1 1';
+    my $material = '1 1 1'; # XXX: Allow for anisotropic material??
 
     foreach my $vertex_key ( keys(%truncated_vertices) ) {
         print OUTFILE ++$vertex_number . " $vertex_key $material\n";
