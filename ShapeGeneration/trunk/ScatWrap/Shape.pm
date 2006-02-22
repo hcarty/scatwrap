@@ -85,14 +85,14 @@ sub new ( $object_class, +$input_file of Str, +$scale of Hash, +$manual of Str )
 ####
 sub _load_shape ( $self ) {
 
-    open( SHAPEFILE, $.input_file )
+    open( my $SHAPEFILE, $.input_file )
       || die "Problem with input file '$.input_file': $!";
 
     # Hold on to the name of the current object.
     my $this_object_name = '';
 
     # Read in the file line by line.
-    while ( my $line = <SHAPEFILE> ) {
+    while ( my $line = <$SHAPEFILE> ) {
         # Skip the line if it isn't a vertex, face, or new object.
         next if ( $line !~ /^[vfo] /i );
 
@@ -113,7 +113,7 @@ sub _load_shape ( $self ) {
     ./add_object($this_object_name);
 
     # We're done with the file, close it up.
-    close(SHAPEFILE);
+    close($SHAPEFILE);
 }
 
 sub add_vertex ( $self, $vx of Num, $vy of Num, $vz of Num ) {
