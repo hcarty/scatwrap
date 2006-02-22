@@ -212,26 +212,26 @@ sub save_dda_data ( $self, $filename of Str ) {
     }
 
     # Open the file for writing.  Overwrite if it already exists.
-    open( OUTFILE, ">$filename" )
+    open( my $OUTFILE, ">$filename" )
       || die "Unable to open $filename for writing: $!";
 
     # Print out a descriptive header.
-    print OUTFILE "Shape information for " . $.input_file . "\n";
-    print OUTFILE scalar( keys(%truncated_vertices) ) . " = Number of dipoles in the system\n";
-    print OUTFILE "1 1 1 = x, y, z components of a1\n";
-    print OUTFILE "1 1 1 = x, y, z components of a2\n";
-    print OUTFILE "Dipole xPos yPos zPos xComposition yComposition zComposition\n";
+    print $OUTFILE "Shape information for " . $.input_file . "\n";
+    print $OUTFILE scalar( keys(%truncated_vertices) ) . " = Number of dipoles in the system\n";
+    print $OUTFILE "1 1 1 = x, y, z components of a1\n";
+    print $OUTFILE "1 1 1 = x, y, z components of a2\n";
+    print $OUTFILE "Dipole xPos yPos zPos xComposition yComposition zComposition\n";
 
     # Now list out all of the vertices.
     my $vertex_number = 0;
     my $material = '1 1 1'; # XXX: Allow for anisotropic material??
 
     foreach my $vertex_key ( keys(%truncated_vertices) ) {
-        print OUTFILE ++$vertex_number . " $vertex_key $material\n";
+        print $OUTFILE ++$vertex_number . " $vertex_key $material\n";
     }
 
     # We're finished.  Close the file.
-    close(OUTFILE);
+    close($OUTFILE);
 }
 
 1;
