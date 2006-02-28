@@ -3,6 +3,7 @@
 	: Array vs Hash
 	[_] Change code to use Carp::confess for errors rather than die.
 	: It's more expressive and gives a backtrace.
+	[_] Add the AUTO_INCREMENT tags to the table id's.
 
 -=- New Code
 	[_] Create a data(base) module.

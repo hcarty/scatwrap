@@ -17,7 +17,7 @@ my $columns = q/
     data /;
 
 # Table description.
-ScatWrap::DDAShapes->table('dda_dipoles');
+ScatWrap::DDAShapes->table('dda_shapes');
 ScatWrap::DDAShapes->columns( All => qq/$columns/ );
 
 # Table relationships.

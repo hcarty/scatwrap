@@ -1,3 +1,7 @@
+2006-02-27  Hezekiah M. Carty  <hcarty@0ok.org>
+
+	* Started a script for (re)building the initial database structure.
+
 2006-02-19  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* Database layout should be just about finalized now... for the next few

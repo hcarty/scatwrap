@@ -10,16 +10,12 @@ database_tables:
     - dipole_polarizability: CHAR(6)
     - binary_dump: CHAR(6)
     - netcdf: CHAR(6)
-    - shape: CHAR(6)
-    - shape_parameters: VARCHAR(64)
-    - shape_description: VARCHAR(255)
-    - shape_data: TEXT
+    - shapeid: CHAR(6)
     - dielectric_table_names: VARCHAR(255)
-    - dielectric_table_files: TEXT
+    - dielectric_table_data: TEXT
     - init: INTEGER
     - error_tolerance: VARCHAR(32)
-    - num_thetas: INTEGER
-    - num_phis: INTEGER
+    - eta_scattering: VARCHAR(32)
     - wavelength_first: VARCHAR(32)
     - wavelength_last: VARCHAR(32)
     - wavelength_num: VARCHAR(16)
@@ -34,19 +30,41 @@ database_tables:
     - beta: VARCHAR(64)
     - theta: VARCHAR(64)
     - phi: VARCHAR(64)
+    - iwav0: VARCHAR(64)
+    - irad0: VARCHAR(64)
+    - iori0: VARCHAR(64)
+    - num_reported_elements: INTEGER
+    - reported_elements_indices: VARCHAR(64)
   dda_results:
     - id: INTEGER
     - name: VARCHAR(255)
-    - filename: VARCHAR(255)
-    - data: BLOB
+    - description: VARCHAR(255)
+    - stdout_data: TEXT
+    - log_data: TEXT
+    - mtable_data: TEXT
+    - qtable_data: TEXT
+    - qtable_data2: TEXT
+    - wavg_data: TEXT
   dda_scattering_planes:
     - id: INTEGER
+    - parameterid: INTEGER
     - phi: VARCHAR(32)
-    - min: VARCHAR(32)
-    - max: VARCHAR(32)
-    - num: VARCHAR(32)
+    - theta_min: VARCHAR(32)
+    - theta_max: VARCHAR(32)
+    - theta_num: VARCHAR(32)
   dda_runs:
     - id: INTEGER
+    - name: VARCHAR(255)
+    - description: VARCHAR(255)
     - parameterid: INTEGER
     - resultid: INTEGER
-    - scatteringplaneid: INTEGER
+  dda_shapes:
+    - id: INTEGER
+    - name: VARCHAR(255)
+    - description: VARCHAR(255)
+    - scalex: FLOAT
+    - scaley: FLOAT
+    - scalez: FLOAT
+    # 'origin' is just a description of where the data comes/came from
+    - origin: TEXT
+    - data: TEXT
