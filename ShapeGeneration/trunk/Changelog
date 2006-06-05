@@ -1,3 +1,7 @@
+2006-06-05  Hezekiah M. Carty  <hcarty@0ok.org>
+
+	* Switched command line option handling to use Getopt-Long.
+
 2006-02-27  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* Started a script for (re)building the initial database structure.

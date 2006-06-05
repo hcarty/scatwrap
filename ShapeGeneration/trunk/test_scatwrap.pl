@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use Perl6::Subs;
+use Getopt::Long;
 use ScatWrap::Shape;
 use YAML;
 
@@ -8,13 +9,19 @@ use strict;
 use warnings;
 
 # Handle command line arguments.
-my $input_file = $ARGV[0] ? $ARGV[0] : 'HexagonalRosette.obj';
-my $scale = { x => ( $ARGV[1] ? $ARGV[1] : 1 ),
-              y => ( $ARGV[2] ? $ARGV[2] : 1 ),
-              z => ( $ARGV[3] ? $ARGV[3] : 1 ) };
+my $input_file  = 'HexagonalRosette.obj';
+my %scale = (
+    x => 1,
+    y => 1,
+    z => 1,
+);
+GetOptions( "object-file=s" => \$input_file,
+            "scale-x=i" => \$scale{x},
+            "scale-y=i" => \$scale{y},
+            "scale-z=i" => \$scale{z} );
 
 my $shape = ScatWrap::Shape->new( input_file => $input_file,
-                                  scale      => $scale );
+                                  scale      => \%scale );
 
 $shape->save_dda_data('test.dat');
 
