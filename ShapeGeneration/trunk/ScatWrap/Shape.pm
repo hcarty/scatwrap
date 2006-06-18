@@ -42,6 +42,7 @@ dies on error.  Use eval for error checking.
 #      file's extension.
 #TODO: Allow the user to pass in a blob of text containing the shape
 #      information, to make web life easier.
+#TODO: Describe the specifics of the file format used for input.
 =cut
 sub load_shape_from_file ( $self, $input_file ) {
 
@@ -72,13 +73,9 @@ sub load_shape_from_file ( $self, $input_file ) {
     # Add the last object in the file.
     ./add_object($this_object_name);
 
-    # We're done with the file, close it up.
-    #XXX: Get rid of this... we don't really need to close the filehandle scalar.
-    close $SHAPEFILE;
-
     # Save where the data came from.
     #XXX: THIS SHOULD BE HANDLED BETTER...
-    ./origin( $input_file );
+    ./origin( "File: $input_file" );
 }
 
 =head2 add_vertex
@@ -153,6 +150,7 @@ sub add_object ( $self, $object_name of Str ) {
                         faces   => [ @.faces ],
                         dipoles => [ ScatWrap::Math::create_dipoles( [ @.faces ], { x => 1, y => 1, z => 1 } ) ]
     };
+
     # Clear out @faces.
     splice @.faces, 0;
 }
@@ -202,8 +200,8 @@ sub save_dda_data ( $self, $filename of Str ) {
     for my $object ( @.objects ) {
         for my $dipole ( @{ $object->{dipoles} } ) {
             # Generate a vertex key so that we don't duplicate points.
-            my $vertex_key = join( ' ', map { int($_) } @{ $dipole } );
-            $truncated_vertices{ "$vertex_key" } = 1;
+            my $vertex_key = join ' ', map { int $_ } @{ $dipole };
+            $truncated_vertices{ $vertex_key } = 1;
         }
     }
 
@@ -213,7 +211,7 @@ sub save_dda_data ( $self, $filename of Str ) {
 
     # Print out a descriptive header.
     print $OUTFILE "Shape information for " . ./origin() . "\n";
-    print $OUTFILE scalar( keys(%truncated_vertices) ) . " = Number of dipoles in the system\n";
+    print $OUTFILE scalar( keys %truncated_vertices ) . " = Number of dipoles in the system\n";
     print $OUTFILE "1 1 1 = x, y, z components of a1\n";
     print $OUTFILE "1 1 1 = x, y, z components of a2\n";
     print $OUTFILE "Dipole xPos yPos zPos xComposition yComposition zComposition\n";
@@ -222,13 +220,9 @@ sub save_dda_data ( $self, $filename of Str ) {
     my $vertex_number = 0;
     my $material = '1 1 1'; # XXX: Allow for anisotropic material??
 
-    for my $vertex_key ( keys(%truncated_vertices) ) {
+    for my $vertex_key ( keys %truncated_vertices ) {
         print $OUTFILE ++$vertex_number . " $vertex_key $material\n";
     }
-
-    # We're finished.  Close the file.
-    #XXX: Get rid of this ... we don't need to close the filehandle scalar manually.
-    close($OUTFILE);
 }
 
 1;
