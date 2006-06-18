@@ -1,26 +1,33 @@
 package ScatWrap::Settings;
 
 use Perl6::Attributes;
-use Perl6::Subs;
-use Spiffy -base;
+use Moose;
 
 use strict;
 use warnings;
 
-field 'filename' = 'settings.yaml';
-field 'etc';
-field 'db';
+has 'filename' => (
+    isa => 'Str',
+    is => 'rw',
+    default => 'settings.yaml'
+);
+has 'etc';
+has 'db';
 
-sub new ( $object_class, ?$filename of Str ) {
+sub new {
 
-    my $self = bless( {}, $object_class );
+    my ( $object_class, $filename ) = @_;
 
-    ./filename( $filename ? $filename : ./filename() );
+    my $self = bless {}, $object_class;
+
+    $self->filename( $filename ? $filename : $self->filename() );
     $self->_load_settings();
     return $self;
 }
 
-sub _load_settings ( $self ) {
+sub _load_settings {
+
+    my $self = shift;
 
     my $yaml_text;
     # Open the file and load the settings from disk.
