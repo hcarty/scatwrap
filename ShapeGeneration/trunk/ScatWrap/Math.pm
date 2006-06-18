@@ -1,14 +1,9 @@
 package ScatWrap::Math;
 
 use PDL;
-use Perl6::Subs;
 
 use strict;
 use warnings;
-
-use subs qw( create_plane   plane_normal 
-             point_inside   _dot_product 
-             create_dipoles );
 
 ####
 #
@@ -17,7 +12,9 @@ use subs qw( create_plane   plane_normal
 # which contains those points.
 #
 ####
-sub create_plane ( $p1 of Array, $p2 of Array, $p3 of Array ) {
+sub create_plane {
+
+    my ( $p1, $p2, $p3 ) = @_;
 
     my $D = determinant( pdl( [ [ $p1->[0], $p2->[0], $p3->[0] ],
                                 [ $p1->[1], $p2->[1], $p3->[1] ],
@@ -43,7 +40,9 @@ sub create_plane ( $p1 of Array, $p2 of Array, $p3 of Array ) {
 # MUST use consistent windings.
 #
 ####
-sub plane_normal ( $p1 of Array, $p2 of Array, $p3 of Array ) {
+sub plane_normal {
+
+    my ( $p1, $p2, $p3 ) = @_;
 
     my $point1  = pdl( $p1 );
     my $point2  = pdl( $p2 );
@@ -70,7 +69,9 @@ sub plane_normal ( $p1 of Array, $p2 of Array, $p3 of Array ) {
 # undef if the point is outside
 #
 ####
-sub point_inside ( $point of Array, $faces of Array ) {
+sub point_inside {
+
+    my ( $point, $faces ) = @_;
 
     $point = pdl($point);
 
@@ -100,13 +101,27 @@ sub point_inside ( $point of Array, $faces of Array ) {
 # A scalar value (the dot product)
 #
 ####
-sub _dot_product ( $a, $b ) {
+sub _dot_product {
 
-    return sum( $a * $b );
+    return sum( $_[0] * $_[1] );
 }
 
-# Create dipoles based on the provided faces.
-sub create_dipoles ( $faces of Array, $resolution of Hash ) {
+####
+#
+# Description:
+# Create a set of dipoles based on a given set of faces.
+#
+# Arguments:
+# 1. Array of faces.
+# 2. Resolution for dipole creation.
+#
+# Returns:
+# An array of [x y z] dipole coordinates.
+#
+####
+sub create_dipoles {
+
+    my ( $faces, $resolution ) = @_;
 
     # The max and min values for each axis.
     my ( $x_max, $x_min, $y_max, $y_min, $z_max, $z_min ) = ( 0, 0, 0, 0, 0, 0 );
