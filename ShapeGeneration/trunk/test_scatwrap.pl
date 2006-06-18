@@ -26,7 +26,7 @@ $shape->save_dda_data('test.dat');
 
 print "Done.\n";
 
-open( my $YAMLFILE, ">test.yaml" )
-  || die "OH NO!  NO YAML! : $!";
+open my $YAMLFILE, ">test.yaml"
+    or die "OH NO!  NO YAML! : $!";
 print $YAMLFILE Dump($shape);
 close $YAMLFILE;
