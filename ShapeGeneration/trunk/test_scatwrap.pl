@@ -1,6 +1,5 @@
 #!/usr/bin/perl
 
-use Perl6::Subs;
 use Getopt::Long;
 use ScatWrap::Shape;
 use YAML;
