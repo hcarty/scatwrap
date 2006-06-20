@@ -1,15 +1,21 @@
-package Wiki::IO;
+package ScatWrap::IO;
+
+# TODO: Write REAL documentation.
+=head1 ScatWrap::IO
+This module provides VERY basic database IO.  Just saving data, and reading
+it.  Someone else has to do the dirty work of figuring out WHAT to write and
+WHERE to write it.
+=cut
 
 use Moose;
 use DBI;
 use SQL::Abstract;
-use Carp;
 use strict;
 use warnings;
 
 # XXX: These should probably be moved elsewhere, and either loaded from disk or some other method.
-my $WIKI_DBI_SOURCE = 'dbi:SQLite:dbname=wiki.db';
-my $WIKI_DBI_ATTRIBUTES = {
+my $DBI_SOURCE = 'dbi:SQLite:dbname=scatwrap.db';
+my $DBI_ATTRIBUTES = {
     RaiseError => 1,
     AutoCommit => 1,
 };
@@ -17,7 +23,7 @@ my $WIKI_DBI_ATTRIBUTES = {
 has 'dbh' => (
     isa => 'Ref',
     is => 'ro',
-    default => sub { DBI->connect( $WIKI_DBI_SOURCE, '', '', $WIKI_DBI_ATTRIBUTES ) }
+    default => sub { DBI->connect( $DBI_SOURCE, '', '', $DBI_ATTRIBUTES ) }
 );
 has 'sql_gen' => (
     isa => 'Ref',
@@ -25,6 +31,14 @@ has 'sql_gen' => (
     default => sub { SQL::Abstract->new() }
 );
 
+=head1 save
+Description:
+Save the provided data.
+
+Arguments:
+1. Table name to save to - MUST BE LEGITIMATE FOR USE AS A SQL TABLE NAME
+2. Hashref of fields => values.
+=cut
 sub save {
 
     my ( $self, $data_table, $data ) = @_;
@@ -37,13 +51,21 @@ sub save {
     $statement_handle->execute(@data);
 }
 
+=head2
+Description:
+Load information from the database.
+
+Arguments:
+1. The data table which contains the information.
+2. Array reference containing the fields to load.
+3. Hash reference containing the restrictions (where foo = 1, etc) -- XXX: See SQL::Abstract docs.
+4. Array reference containing the fields to order by in order of precendence.
+
+Returns:
+1. Array reference exactly as returned by the database handle (selectall_arrayref specifically?) -- XXX: Spec this.
+=cut
 sub load {
 
-# XXX: Arguments: data_table to retrieve from,
-#                 array ref containing the fields to load,
-#                 hash ref containing the restrictions (where foo = 1, etc),
-#                 array ref containing the fields to order by in order of precendence
-# XXX: Returns: The data as it comes from DBI (specifically selectall_arrayref)
     my ( $self, $data_table, $data, $where, $order ) = @_;
 
 # Generate the SQL statement
@@ -54,19 +76,3 @@ sub load {
 }
 
 1;
-
-# TODO: Write REAL documentation.
-# This module provides VERY basic database IO.  Just saving data, and reading
-# it.  Someone else has to do the dirty work of figuring out WHAT and WHERE to
-# write it.
-=head1 dbh
-A database handle must be passed to the Wiki::IO constructor.
-=cut
-=head1 save
-Description:
-Save the provided data.
-
-Arguments:
-1. Table name (probably a page id) - MUST BE LEGITIMATE FOR USE AS A SQL TABLE NAME
-2. Hashref of fields => values.
-=cut
