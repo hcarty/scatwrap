@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use Getopt::Long;
-use ScatWrap::Shape;
+use ScatWrap::DDSCAT;
 use YAML;
 
 use strict;
@@ -20,9 +20,8 @@ GetOptions( "object-file=s" => \$input_file,
             "scale-z=i" => \$scale{z}
 );
 
-
 # Create the shape object and load the information from disk.
-my $shape = ScatWrap::Shape->new( scale      => \%scale );
+my $shape = ScatWrap::DDSCAT->new( scale      => \%scale );
 $shape->load_shape_from_file( $input_file );
 
 # Save the generated dipoles in a DDA-friendly format.

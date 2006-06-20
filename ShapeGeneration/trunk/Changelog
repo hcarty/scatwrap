@@ -1,3 +1,13 @@
+2006-06-20  Hezekiah M. Carty  <hcarty@0ok.org>
+
+	* The Spiffy -> Moose transition should now be complete.
+	* Added a ScatWrap-IO module which will handle the lowest level database
+	IO.
+	* Added ScatWrap-DDSCAT, which will hold the DDSCAT specific bits, and
+	likely the next level of abstraction up from ScatWrap-IO.
+	* Refactoring things around a bit to make sure functions are where they
+	belong - mainly moving IO to ScatWrap-IO and ScatWrap-DDSCAT.
+
 2006-06-14  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* (In the process of) moving from Spiffy to Moose as an OO-base.  Also,

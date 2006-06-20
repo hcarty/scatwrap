@@ -6,10 +6,14 @@ This module provides VERY basic database IO.  Just saving data, and reading
 it.  Someone else has to do the dirty work of figuring out WHAT to write and
 WHERE to write it.
 =cut
+=head1 TODO
+=item Add proper type checks for the 'dbh' and 'sql_gen' attributes.  See the Moose docs.
+=cut
 
 use Moose;
 use DBI;
 use SQL::Abstract;
+
 use strict;
 use warnings;
 
