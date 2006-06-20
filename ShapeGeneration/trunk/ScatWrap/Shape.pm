@@ -66,8 +66,12 @@ sub load_shape_from_file ( $self, $input_file ) {
             # Save the object's name
             $this_object_name = $parts[0];
         }
-        elsif ( lc $type eq 'v' ) { ./add_vertex(@parts)     }
-        elsif ( lc $type eq 'f' ) { ./add_face(\@parts)      }
+        elsif ( lc $type eq 'v' ) {
+            ./add_vertex(@parts);
+        }
+        elsif ( lc $type eq 'f' ) {
+            ./add_face(\@parts);
+        }
     }
 
     # Add the last object in the file.
@@ -155,26 +159,49 @@ sub add_object ( $self, $object_name of Str ) {
     splice @.faces, 0;
 }
 
-# Print the shape out on the screen.
-sub print_shape ( $self ) {
+=head2
+Description:
+Gives the shape information in a ddscat-usable format.
 
-    local $Data::Dumper::Indent = 0;
-    local $Data::Dumper::Terse = 1;
+Arguments:
+None.
 
-    print "\nObjects: \n";
-    for (@.objects) {
-        print Dumper($_) . "\n";
+Returns:
+1. Text formatted for input to ddscat.
+=cut
+sub ddscat_data ( $self ) {
+
+    # Convert the vertex coordinates to integer values.
+    my %truncated_vertices;
+    for my $object ( @.objects ) {
+        for my $dipole ( @{ $object->{dipoles} } ) {
+            # Generate a vertex key so that we don't duplicate points.
+            my $vertex_key = join ' ', map { int $_ } @{ $dipole };
+            $truncated_vertices{ $vertex_key } = 1;
+        }
     }
 
-    print "\nFaces: \n";
-    for (@.faces) {
-        print Dumper($_) . "\n";
+    # The data to return.
+    my $ddscat_data;
+
+    # A descriptive header.
+    #XXX: This should be done as a heredoc probably, but this is easier (interpolation) for now.
+    $ddscat_data =
+        "Shape information for " . ./origin() . "\n"
+        . scalar( keys %truncated_vertices ) . " = Number of dipoles in the system\n"
+        . "1 1 1 = x, y, z components of a1\n"
+        . "1 1 1 = x, y, z components of a2\n"
+        . "Dipole xPos yPos zPos xComposition yComposition zComposition\n";
+
+    # Now list out all of the vertices.
+    my $vertex_number = 0;
+    my $material = '1 1 1'; # XXX: Allow for anisotropic material??
+
+    for my $vertex_key ( keys %truncated_vertices ) {
+        $ddscat_data .= ++$vertex_number . " $vertex_key $material\n";
     }
 
-    print "\nVertices: \n";
-    for (@.vertices) {
-        print Dumper($_) . "\n";
-    }
+    return $ddscat_data;
 }
 
 =head2 save_dda_data
@@ -195,33 +222,33 @@ TODO: Convert this to use Template::Toolkit or something similar.
 =cut
 sub save_dda_data ( $self, $filename of Str ) {
 
-    # Convert the vertex coordinates to integer values.
-    my %truncated_vertices;
-    for my $object ( @.objects ) {
-        for my $dipole ( @{ $object->{dipoles} } ) {
-            # Generate a vertex key so that we don't duplicate points.
-            my $vertex_key = join ' ', map { int $_ } @{ $dipole };
-            $truncated_vertices{ $vertex_key } = 1;
-        }
-    }
-
     # Open the file for writing.  Overwrite if it already exists.
     open my $OUTFILE, ">$filename"
         or die "Unable to open $filename for writing: $!";
 
-    # Print out a descriptive header.
-    print $OUTFILE "Shape information for " . ./origin() . "\n";
-    print $OUTFILE scalar( keys %truncated_vertices ) . " = Number of dipoles in the system\n";
-    print $OUTFILE "1 1 1 = x, y, z components of a1\n";
-    print $OUTFILE "1 1 1 = x, y, z components of a2\n";
-    print $OUTFILE "Dipole xPos yPos zPos xComposition yComposition zComposition\n";
+    print $OUTFILE ./ddscat_data();
+}
 
-    # Now list out all of the vertices.
-    my $vertex_number = 0;
-    my $material = '1 1 1'; # XXX: Allow for anisotropic material??
+# XXX: Purely for debugging...
+# Print the shape out on the screen.
+sub dump_shape_to_screen ( $self ) {
 
-    for my $vertex_key ( keys %truncated_vertices ) {
-        print $OUTFILE ++$vertex_number . " $vertex_key $material\n";
+    local $Data::Dumper::Indent = 0;
+    local $Data::Dumper::Terse = 1;
+
+    print "\nObjects: \n";
+    for (@.objects) {
+        print Dumper($_) . "\n";
+    }
+
+    print "\nFaces: \n";
+    for (@.faces) {
+        print Dumper($_) . "\n";
+    }
+
+    print "\nVertices: \n";
+    for (@.vertices) {
+        print Dumper($_) . "\n";
     }
 }
 
