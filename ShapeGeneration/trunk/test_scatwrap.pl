@@ -25,7 +25,7 @@ my $shape = ScatWrap::DDSCAT->new( scale      => \%scale );
 $shape->load_shape_from_file( $input_file );
 
 # Save the generated dipoles in a DDA-friendly format.
-$shape->save_dda_data('test.dat');
+$shape->save_dda_data( filename => 'test.dat');
 
 print "Done.\n";
 
