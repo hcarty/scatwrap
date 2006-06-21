@@ -28,9 +28,3 @@ $shape->load_shape_from_file( $input_file );
 $shape->save_dda_data( filename => 'test.dat');
 
 print "Done.\n";
-
-# Spit the data out to YAML land too, just for fun...
-open my $YAMLFILE, ">test.yaml"
-    or die "OH NO!  NO YAML! : $!";
-print $YAMLFILE Dump($shape);
-close $YAMLFILE;
