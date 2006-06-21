@@ -29,7 +29,7 @@ Arguments:
 None.
 
 Returns:
-1. Text formatted for input to ddscat.
+1. Text formatted for input to ddscat (though it should probably be written to a file first).
 =cut
 sub ddscat_data ( $self ) {
 
@@ -63,6 +63,7 @@ sub ddscat_data ( $self ) {
         $ddscat_data .= ++$vertex_number . " $vertex_key $material\n";
     }
 
+    #TODO: Convert this to use Template::Toolkit or something similar.
     return $ddscat_data;
 }
 
@@ -74,16 +75,17 @@ for use by ddscat.
 WARNING: The given filename will be overwritten if it already exists.
 
 Arguments:
-1. Filename to save the data to.
+1. OPTIONAL, NAMED - Filename to save the data to.
 
 Returns:
 None.
-dies on failure.  Use eval for error checking.
-
-TODO: Convert this to use Template::Toolkit or something similar.
 =cut
-sub save_dda_data ( $self, $filename of Str ) {
+sub save_dda_data ( $self, +$filename of Str ) {
 
+    # If no filename was given, use a default name.
+    $filename = $filename
+                ? $filename
+                : 'shape.dat';
     # Open the file for writing.  Overwrite if it already exists.
     open my $OUTFILE, ">$filename"
         or die "Unable to open $filename for writing: $!";
