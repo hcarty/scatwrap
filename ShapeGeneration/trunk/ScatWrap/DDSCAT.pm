@@ -6,6 +6,7 @@ XXX: Write some docs!
 
 use Moose;
 use Template;
+use YAML;
 use Perl6::Subs;
 use Perl6::Attributes;
 
@@ -129,6 +130,14 @@ sub save_to_database ( $self ) {
         {
             dda_shape_id => ./origin(),
             data => ./ddscat_shape_data(),
+        }
+    );
+    ./io->save(
+        'ddscat_parameters',
+        {
+            ddscat_shape_id => ./origin(),
+            yaml => Dump( ./parameters() ),
+            data => ./ddscat_parameter_data(),
         }
     );
 }

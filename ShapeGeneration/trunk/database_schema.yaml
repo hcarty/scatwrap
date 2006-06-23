@@ -73,3 +73,8 @@ database_tables:
     - id: INTEGER PRIMARY KEY
     - dda_shape_id: INTEGER
     - data: TEXT
+  ddscat_parameters:
+    - id: INTEGER PRIMARY KEY
+    - ddscat_shape_id: INTEGER
+    - yaml: TEXT
+    - data: TEXT
