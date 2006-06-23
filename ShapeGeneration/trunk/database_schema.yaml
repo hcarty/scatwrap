@@ -1,7 +1,7 @@
 ---
 database_tables:
   dda_parameters:
-    - id: INTEGER
+    - id: INTEGER PRIMARY KEY
     - name: VARCHAR(64)
     - description: VARCHAR(64)
     - torque: CHAR(6)
@@ -36,7 +36,7 @@ database_tables:
     - num_reported_elements: INTEGER
     - reported_elements_indices: VARCHAR(64)
   dda_results:
-    - id: INTEGER
+    - id: INTEGER PRIMARY KEY
     - name: VARCHAR(255)
     - description: VARCHAR(255)
     - stdout_data: TEXT
@@ -46,25 +46,30 @@ database_tables:
     - qtable_data2: TEXT
     - wavg_data: TEXT
   dda_scattering_planes:
-    - id: INTEGER
+    - id: INTEGER PRIMARY KEY
     - parameterid: INTEGER
     - phi: VARCHAR(32)
     - theta_min: VARCHAR(32)
     - theta_max: VARCHAR(32)
     - theta_num: VARCHAR(32)
   dda_runs:
-    - id: INTEGER
+    - id: INTEGER PRIMARY KEY
     - name: VARCHAR(255)
     - description: VARCHAR(255)
     - parameterid: INTEGER
     - resultid: INTEGER
   dda_shapes:
-    - id: INTEGER
+    - id: INTEGER PRIMARY KEY
     - name: VARCHAR(255)
     - description: VARCHAR(255)
     - scalex: FLOAT
     - scaley: FLOAT
     - scalez: FLOAT
-    # 'origin' is just a description of where the data comes/came from
+# 'origin' is just a description of where the data comes/came from
     - origin: TEXT
+    - data: TEXT
+# This holds the text as it would be fed in to ddscat in the shape.dat file.
+  ddscat_shapes:
+    - id: INTEGER PRIMARY KEY
+    - dda_shape_id: INTEGER
     - data: TEXT
