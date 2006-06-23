@@ -1,3 +1,23 @@
+2006-06-23  Hezekiah M. Carty  <hcarty@0ok.org>
+
+	* Starting to use templates!  Template-Toolkit provides the goods for now.
+	* Added a (working?) ddscat.par template, and the goods to parse it.
+	Also, an example data set based on the example which comes with ddscat.
+	* Many small cleanups.
+
+2006-06-22  Hezekiah M. Carty  <hcarty@0ok.org>
+
+	* Updating ScatWrap-IO module so that the load() function returns cleaner
+	and more easily understood results.
+	* Added a ScatWrap-DDSCAT routine to save shape data to the database.  One
+	command!
+	* Created a template for the ddscat.par input file.  Still need to fill it
+	out properly, but that's easy!
+	* Several more bits of code cleanup.
+	* Trying to stick to some of the more readily available XP ideals - Key =>
+	do the simplest thing that could possibly work.  This one could be a
+	life-saver.
+
 2006-06-20  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* The Spiffy -> Moose transition should now be complete.
