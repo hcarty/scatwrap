@@ -1,0 +1,47 @@
+' =================== Parameter file ===================' 
+'**** PRELIMINARIES ****'
+'[% torque %]' = CMTORQ*6 (DOTORQ, NOTORQ) -- either do or skip torque calculations
+'[% solution_method %]' = CMDSOL*6 (PBCGST, PETRKP) -- select solution method
+'[% fft_method %]' = CMETHD*6 (GPFAFT, FFTWJ, CONVEX)
+'[% dispersion_relation %]' = CALPHA*6 (LATTDR, SCLDR)
+'[% binary_dump %]' = CBINFLAG (ALLBIN, ORIBIN, NOTBIN)
+'[% netcdf %]' = CNETFLAG (ALLCDF, ORICDF, NOTCDF)
+'[% shape.type %]' = CSHAPE*6 (FRMFIL,ELLIPS,CYLNDR,RCTNGL,HEXGON,TETRAH,UNICYL,UNIELL)
+[% FOREACH parameter = shape.parameters -%]
+[% parameter %] [% END %]= shape parameters PAR1, PAR2, PAR3
+[% dielectric.num %] = NCOMP = number of dielectric materials
+'[% dielectric.type %]' = CDIEL*6 (TABLES,H2OICE,H2OLIQ; if TABLES, then filenames follow...)
+[% FOREACH filename = dielectric.filenames -%]
+'[% filename %]' = name of file containing dielectric function
+[% END -%]
+'**** CONJUGATE GRADIENT DEFINITIONS ****'
+[% init %] = INIT (TO BEGIN WITH |X0> = 0)
+[% error_tolerance %] = TOL = MAX ALLOWED (NORM OF |G>=AC|E>-ACA|X>)/(NORM OF AC|E>)
+'**** Angular resolution for calculation of <cos>, etc. ****'
+[% eta %] = ETASCA (number of angles is proportional to [(3+x)/ETASCA]^2 )
+'**** Wavelengths (micron) ****'
+[% wavelengths.first %] [% wavelengths.last %] [% wavelengths.num -%]
+ '[% wavelengths.choice %]' = wavelengths (first,last,how many,how=LIN,INV,LOG)
+'**** Effective Radii (micron) **** '
+[% radii.first %] [% radii.last %] [% radii.num -%]
+ [% radii.choice %] = eff. radii (first, last, how many, how=LIN,INV,LOG)
+'**** Define Incident Polarizations ****'
+([% polarization.x %]) ([% polarization.y -%]) (
+[%- polarization.z %]) = Polarization state e01 (k along x axis)
+[% polarization.orthogonal %] = IORTH  (=1 to do only pol. state e01; =2 to also do orth. pol. state)
+[% write_sca %] = IWRKSC (=0 to suppress, =1 to write ".sca" file for each target orient.
+'**** Prescribe Target Rotations ****'
+[% beta.min %] [% beta.max %] [% beta.num %] = BETAMI, BETAMX, NBETA (beta=rotation around a1)
+[% theta.min %] [% theta.max %] [% theta.num %] = THETMI, THETMX, NTHETA (theta=angle between a1 and k)
+[% phi.min %] [% phi.max %] [% phi.num %] = PHIMIN, PHIMAX, NPHI (phi=rotation angle of a1 around k)
+'**** Specify first IWAV, IRAD, IORI (normally 0 0 0) ****'
+[% iwav %] [% irad %] [% iori %] = first IWAV, first IRAD, first IORI (0 0 0 to begin fresh)
+'**** Select Elements of S_ij Matrix to Print ****'
+[% s.num %] = NSMELTS = number of elements of S_ij to print (not more than 9)
+[% FOREACH element = s.elements -%]
+[% element %] [% END %]= indices ij of elements to print
+'**** Specify Scattered Directions ****'
+[% FOREACH plane = scattering_planes -%]
+[% plane.phi %] [% plane.theta.min %] [% plane.theta.max -%]
+ [% plane.theta.delta %] = phi, thetan_min, thetan_max, dtheta (in degrees) for this plane
+[% END -%]
