@@ -7,7 +7,7 @@ it.  Someone else has to do the dirty work of figuring out WHAT to write and
 WHERE to write it.
 =cut
 =head1 TODO
-=item Add proper type checks for the 'dbh' and 'sql_gen' attributes.  See the Moose docs.
+# TODO: Add proper type checks for the 'dbh' and 'sql_gen' attributes.  See the Moose docs.
 =cut
 
 use Moose;
@@ -42,6 +42,9 @@ Save the provided data.
 Arguments:
 1. Table name to save to - MUST BE LEGITIMATE FOR USE AS A SQL TABLE NAME
 2. Hashref of fields => values.
+
+Returns:
+None.
 =cut
 sub save {
 
@@ -55,7 +58,7 @@ sub save {
     $statement_handle->execute(@data);
 }
 
-=head2
+=head2 load
 Description:
 Load information from the database.
 
@@ -66,17 +69,41 @@ Arguments:
 4. Array reference containing the fields to order by in order of precendence.
 
 Returns:
-1. Array reference exactly as returned by the database handle (selectall_arrayref specifically?) -- XXX: Spec this.
+1. Array reference of hash references containing each result. -- XXX: Spec this.
+Example:
+    $result = [
+        {
+            col1 => 'Contents of column 1, 1st entry',
+            col2 => 'Contents of column 2, 1st entry',
+        },
+        {
+            col1 => 'Contents of column 1, 2nd entry',
+            col2 => 'Contents of column 2, 2nd entry',
+        },
+    ];
 =cut
 sub load {
 
-    my ( $self, $data_table, $data, $where, $order ) = @_;
+    my ( $self, $data_table, $fields, $where, $order ) = @_;
 
 # Generate the SQL statement
-    my ( $statement, @data ) = $self->sql_gen->select( $data_table, $data, $where, $order );
+    my ( $statement, @data ) = $self->sql_gen->select( $data_table, $fields, $where, $order );
 
 # Prepare the statement with the database, and get the data
-    return $self->dbh->selectall_arrayref( $statement, undef, @data );
+    my $rows = $self->dbh->selectall_arrayref( $statement, undef, @data );
+
+# Go through each row and save the result as a hash with key of column heading => data.
+    my @results;
+    for my $row ( @$rows ) {
+        my %result;
+        for ( my $column = 0; $column < scalar @$fields; $column++ ) {
+            $result{ $fields->[ $column ] } = $row->[ $column ];
+        }
+        push @results, \%result;
+    }
+
+# Return a reference to the just-built results structure.
+    return \@results;
 }
 
 1;
