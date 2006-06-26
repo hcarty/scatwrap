@@ -24,7 +24,7 @@
  '[% wavelengths.choice %]' = wavelengths (first,last,how many,how=LIN,INV,LOG)
 '**** Effective Radii (micron) **** '
 [% radii.first %] [% radii.last %] [% radii.num -%]
- [% radii.choice %] = eff. radii (first, last, how many, how=LIN,INV,LOG)
+ '[% radii.choice %]' = eff. radii (first, last, how many, how=LIN,INV,LOG)
 '**** Define Incident Polarizations ****'
 ([% polarization.x %]) ([% polarization.y -%]) (
 [%- polarization.z %]) = Polarization state e01 (k along x axis)

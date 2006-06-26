@@ -34,6 +34,8 @@ None.
 
 Returns:
 1. Text formatted for input to ddscat (though it should probably be written to a file first).
+
+#TODO: Change this function to use Template::Toolkit or some other templating package.
 =cut
 sub ddscat_shape_data ( $self ) {
 
@@ -57,6 +59,7 @@ sub ddscat_shape_data ( $self ) {
         . scalar( keys %truncated_vertices ) . " = Number of dipoles in the system\n"
         . "1 1 1 = x, y, z components of a1\n"
         . "1 1 1 = x, y, z components of a2\n"
+        . "Dummy line due to prior non-cubic latice support in ddscat\n"
         . "Dipole xPos yPos zPos xComposition yComposition zComposition\n";
 
     # Now list out all of the vertices.
@@ -71,7 +74,7 @@ sub ddscat_shape_data ( $self ) {
     return $shape_data;
 }
 
-=head2
+=head2 ddscat_parameter_data
 Description:
 Gives the ddscat parameter information in a ddscat-usable format.
 
@@ -93,9 +96,9 @@ sub ddscat_parameter_data ( $self ) {
 =head2 save_dda_data
 Description:
 Write the generated dipole information out to disk in a format usable by
-ddscat.  This should generally be used for writing out a 'shape.dat' file
-for use by ddscat.
-WARNING: The given filename will be overwritten if it already exists.
+ddscat.  This should generally be used for writing out a 'shape.dat' file and
+a 'ddscat.par' file for use by ddscat.
+WARNING: The given filenames will be overwritten if they already exist.
 
 Arguments:
 1. OPTIONAL, NAMED - Filename to save the data to.
@@ -103,20 +106,27 @@ Arguments:
 Returns:
 None.
 =cut
-sub save_dda_data ( $self, +$filename of Str ) {
+sub save_dda_data ( $self, +$parameter_filename of Str, +$shape_filename of Str ) {
 
     # If no filename was given, use a default name.
-    $filename = $filename
-                ? $filename
-                : 'shape.dat';
-    # Open the file for writing.  Overwrite if it already exists.
-    open my $OUTFILE, ">$filename"
-        or die "Unable to open $filename for writing: $!";
+    $parameter_filename = $parameter_filename
+                          ? $parameter_filename
+                          : 'ddscat.par';
+    $shape_filename = $shape_filename
+                      ? $shape_filename
+                      : 'shape.dat';
+    # Open the file(s) for writing.  Overwrite if it already exists.
+    open my $PARAMFILE, ">$parameter_filename"
+        or die "Unable to open $parameter_filename for writing: $!";
+    open my $SHAPEFILE, ">$shape_filename"
+        or die "Unable to open $shape_filename for writing: $!";
 
-    print $OUTFILE ./ddscat_shape_data();
+    print $SHAPEFILE ./ddscat_shape_data();
+    print $PARAMFILE ./ddscat_parameter_data();
 }
 
 =head2 save_to_database
+XXX: Terrible hack!
 Description:
 
 Arguments:
@@ -160,7 +170,7 @@ sub set_default_parameters ( $self ) {
             binary_dump => 'NOTBIN',
             netcdf => 'NOTCDF',
             shape => {
-                type => 'RCTNGL',
+                type => 'FRMFIL',
                 parameters => [ qw/32 24 16/ ],
             },
             dielectric => {
