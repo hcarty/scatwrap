@@ -1,21 +1,14 @@
 #!/usr/bin/perl
 
-use YAML;
-use Data::Dumper;
+use YAML qw/Dump LoadFile/;
 use Perl6::Subs;
 
 use strict;
 use warnings;
 
-use subs qw/ create_table_sql /;
-
 my $filename = 'database_schema.yaml';
 
-open( my $fh, $filename );
-my $yaml_data = join '', <$fh>;
-close $fh;
-
-my $db_schema = Load($yaml_data);
+my $db_schema = LoadFile($filename);
 
 print join( "\n\n", create_table_sql($db_schema->{database_tables}) ) . "\n";
 
@@ -27,8 +20,27 @@ sub create_table_sql ( $tables of Hash ) {
         my @column_list;
         for my $columns ( $tables->{$table_name} ) {
             for my $column ( @$columns ) {
-                my ( $name, $type ) = %$column;
-                push @column_list, "$name $type";
+                my $column_sql = "$column->{name} $column->{type}";
+
+# Handle CHECK constraints on the column.
+                if ( defined $column->{check} ) {
+                    my $check;
+                    if ( $column->{check} =~ /,/ ) {
+                        my @constraints = split ',', $column->{check};
+                        $check .= "IN ('" . join( "','", @constraints ) . "')";
+                    }
+                    elsif ( $column->{check} =~ /-/ ) {
+                        my @constraints = split '-', $column->{check};
+                        $check .= "BETWEEN $constraints[0] and $constraints[1]";
+                    }
+                    elsif ( defined $column->{check} ) {
+                        die "Badly formed check constraint information:\n$column->{check}\non $column->{name} in table $table_name";
+                    }
+                    if ( $check ) {
+                        $column_sql .= " CHECK ($column->{name} $check)";
+                    }
+                }
+                push @column_list, $column_sql;
             }
         }
 

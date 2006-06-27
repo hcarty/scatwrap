@@ -1,3 +1,10 @@
+2006-06-27  Hezekiah M. Carty  <hcarty@0ok.org>
+
+	* Added support for CHECK constraints when building initial ScatWrap
+	tables.  I also implemented several CHECK constraints for the ddscat
+	parameters, though they likely need further scrutiny and not all listed
+	options are currently supported by ScatWrap's internals.
+
 2006-06-26  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* Cleanups based on first run against DDSCAT 6.1 -- ScatWrap output now

@@ -1,80 +1,165 @@
 ---
 database_tables:
   dda_parameters:
-    - id: INTEGER PRIMARY KEY
-    - name: VARCHAR(64)
-    - description: VARCHAR(64)
-    - torque: CHAR(6)
-    - solution_method: CHAR(6)
-    - fft_algorithm: CHAR(6)
-    - dipole_polarizability: CHAR(6)
-    - binary_dump: CHAR(6)
-    - netcdf: CHAR(6)
-    - shapeid: CHAR(6)
-    - dielectric_table_names: VARCHAR(255)
-    - dielectric_table_data: TEXT
-    - init: INTEGER
-    - error_tolerance: VARCHAR(32)
-    - eta_scattering: VARCHAR(32)
-    - wavelength_first: VARCHAR(32)
-    - wavelength_last: VARCHAR(32)
-    - wavelength_num: VARCHAR(16)
-    - wavelength_choice: VARCHAR(16)
-    - radii_first: VARCHAR(32)
-    - radii_last: VARCHAR(32)
-    - radii_num: VARCHAR(16)
-    - radii_choice: VARCHAR(16)
-    - polarization: VARCHAR(32)
-    - polarization_states: INTEGER
-    - write_sca: INTEGER
-    - beta: VARCHAR(64)
-    - theta: VARCHAR(64)
-    - phi: VARCHAR(64)
-    - iwav0: VARCHAR(64)
-    - irad0: VARCHAR(64)
-    - iori0: VARCHAR(64)
-    - num_reported_elements: INTEGER
-    - reported_elements_indices: VARCHAR(64)
+    - name: id
+      type: INTEGER PRIMARY KEY
+    - name: name
+      type: VARCHAR(64)
+    - name: description
+      type: VARCHAR(64)
+    - name: torque
+      type: CHAR(6)
+      check: DOTORQ,NOTORQ
+    - name: solution_method
+      type: CHAR(6)
+      check: PBCGST,PETRKP
+    - name: fft_algorithm
+      type: CHAR(6)
+      check: GPFAFT,FFTW21,CONVEX
+    - name: dipole_polarizability
+      type: CHAR(6)
+      check: LATTDR,SCLDR
+    - name: binary_dump
+      type: CHAR(6)
+      check: ALLBIN,ORIBIN,NOTBIN
+    - name: netcdf
+      type: CHAR(6)
+      check: ALLCDF,ORICDF,NOTCDF
+#XXX: Many other shape ids are possible, but FRMFIL is the only one the software supports at this time.
+    - name: shapeid
+      type: CHAR(6)
+      check: FRMFIL,
+    - name: dielectric_type
+      type: CHAR(6)
+      check: H20ICE,H20LIQ,TABLES
+    - name: dielectric_table_data
+      type: TEXT
+    - name: init
+      type: INTEGER
+    - name: error_tolerance
+      type: VARCHAR(32)
+    - name: eta_scattering
+      type: VARCHAR(32)
+    - name: wavelength_first
+      type: VARCHAR(32)
+    - name: wavelength_last
+      type: VARCHAR(32)
+    - name: wavelength_num
+      type: VARCHAR(16)
+    - name: wavelength_choice
+      type: CHAR(3)
+      check: LIN,INV,LOG
+    - name: radii_first
+      type: VARCHAR(32)
+    - name: radii_last
+      type: VARCHAR(32)
+    - name: radii_num
+      type: VARCHAR(16)
+    - name: radii_choice
+      type: CHAR(3)
+      check: LIN,INV,LOG
+#XXX: Fix the polarization option - make it better!
+    - name: polarization
+      type: VARCHAR(32)
+    - name: polarization_states
+      type: INTEGER
+      check: 1-2
+    - name: write_sca
+      type: INTEGER
+      check: 0-1
+    - name: beta
+      type: VARCHAR(64)
+    - name: theta
+      type: VARCHAR(64)
+    - name: phi
+      type: VARCHAR(64)
+    - name: iwav0
+      type: VARCHAR(64)
+    - name: irad0
+      type: VARCHAR(64)
+    - name: iori0
+      type: VARCHAR(64)
+    - name: num_reported_elements
+      type: INTEGER
+      check: 1-9
+#XXX: It would be good to add a check on element indices at some point.
+    - name: reported_elements_indices
+      type: VARCHAR(64)
   dda_results:
-    - id: INTEGER PRIMARY KEY
-    - name: VARCHAR(255)
-    - description: VARCHAR(255)
-    - stdout_data: TEXT
-    - log_data: TEXT
-    - mtable_data: TEXT
-    - qtable_data: TEXT
-    - qtable_data2: TEXT
-    - wavg_data: TEXT
+    - name: id
+      type: INTEGER PRIMARY KEY
+    - name: name
+      type: VARCHAR(255)
+    - name: description
+      type: VARCHAR(255)
+    - name: stdout_data
+      type: TEXT
+    - name: log_data
+      type: TEXT
+    - name: mtable_data
+      type: TEXT
+    - name: qtable_data
+      type: TEXT
+    - name: qtable_data2
+      type: TEXT
+    - name: wavg_data
+      type: TEXT
   dda_scattering_planes:
-    - id: INTEGER PRIMARY KEY
-    - parameterid: INTEGER
-    - phi: VARCHAR(32)
-    - theta_min: VARCHAR(32)
-    - theta_max: VARCHAR(32)
-    - theta_num: VARCHAR(32)
+    - name: id
+      type: INTEGER PRIMARY KEY
+    - name: parameterid
+      type: INTEGER
+    - name: phi
+      type: VARCHAR(32)
+    - name: theta_min
+      type: VARCHAR(32)
+    - name: theta_max
+      type: VARCHAR(32)
+    - name: theta_num
+      type: VARCHAR(32)
   dda_runs:
-    - id: INTEGER PRIMARY KEY
-    - name: VARCHAR(255)
-    - description: VARCHAR(255)
-    - parameterid: INTEGER
-    - resultid: INTEGER
+    - name: id
+      type: INTEGER PRIMARY KEY
+    - name: name
+      type: VARCHAR(255)
+    - name: description
+      type: VARCHAR(255)
+    - name: parameterid
+      type: INTEGER
+    - name: resultid
+      type: INTEGER
   dda_shapes:
-    - id: INTEGER PRIMARY KEY
-    - name: VARCHAR(255)
-    - description: VARCHAR(255)
-    - scalex: FLOAT
-    - scaley: FLOAT
-    - scalez: FLOAT
+    - name: id
+      type: INTEGER PRIMARY KEY
+    - name: name
+      type: VARCHAR(255)
+    - name: description
+      type: VARCHAR(255)
+    - name: scalex
+      type: FLOAT
+    - name: scaley
+      type: FLOAT
+    - name: scalez
+      type: FLOAT
 # 'origin' is just a description of where the data comes/came from
-    - origin: TEXT
-    - data: TEXT
+    - name: origin
+      type: TEXT
+    - name: data
+      type: TEXT
 # This holds the text as it would be fed in to ddscat in the shape.dat file.
   ddscat_shapes:
-    - id: INTEGER PRIMARY KEY
-    - dda_shape_id: INTEGER
-    - data: TEXT
+    - name: id
+      type: INTEGER PRIMARY KEY
+    - name: dda_shape_id
+      type: INTEGER
+    - name: data
+      type: TEXT
   ddscat_parameters:
-    - id: INTEGER PRIMARY KEY
-    - ddscat_shape_id: INTEGER
-    - yaml: TEXT
-    - data: TEXT
+    - name: id
+      type: INTEGER PRIMARY KEY
+    - name: ddscat_shape_id
+      type: INTEGER
+    - name: yaml
+      type: TEXT
+    - name: data
+      type: TEXT
