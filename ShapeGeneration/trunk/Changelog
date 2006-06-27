@@ -1,3 +1,8 @@
+2006-06-26  Hezekiah M. Carty  <hcarty@0ok.org>
+
+	* Cleanups based on first run against DDSCAT 6.1 -- ScatWrap output now
+	works when run against the latest DDSCAT!
+
 2006-06-23  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* Starting to use templates!  Template-Toolkit provides the goods for now.
