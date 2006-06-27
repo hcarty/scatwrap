@@ -12,6 +12,7 @@ my $db_schema = LoadFile($filename);
 
 print join( "\n\n", create_table_sql($db_schema->{database_tables}) ) . "\n";
 
+#TODO: Add support for foreign key constraints - either through triggers (SQLite) or add just support so that the SQL can be built for other DBs.
 sub create_table_sql ( $tables of Hash ) {
 
     my @bunch_of_sqls;
