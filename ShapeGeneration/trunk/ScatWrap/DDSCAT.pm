@@ -175,8 +175,8 @@ sub set_default_parameters ( $self ) {
             },
             dielectric => {
                 num => 1,
-                type => 'TABLES',
-                filenames => [ qw| diel.tab | ],
+                type => 'H2OICE',
+                filenames => [ ],
             },
             init => 0,
             error_tolerance => 1.00e-5,
