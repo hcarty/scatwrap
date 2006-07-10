@@ -1,0 +1,37 @@
+' =================== Parameter file ===================' 
+'**** PRELIMINARIES ****'
+'NOTORQ' = CMTORQ*6 (DOTORQ, NOTORQ) -- either do or skip torque calculations
+'PBCGST' = CMDSOL*6 (PBCGST, PETRKP) -- select solution method
+'GPFAFT' = CMETHD*6 (GPFAFT, FFTWJ, CONVEX)
+'LATTDR' = CALPHA*6 (LATTDR, SCLDR)
+'NOTBIN' = CBINFLAG (ALLBIN, ORIBIN, NOTBIN)
+'NOTCDF' = CNETFLAG (ALLCDF, ORICDF, NOTCDF)
+'FRMFIL' = CSHAPE*6 (FRMFIL,ELLIPS,CYLNDR,RCTNGL,HEXGON,TETRAH,UNICYL,UNIELL)
+32 24 16 = shape parameters PAR1, PAR2, PAR3
+1 = NCOMP = number of dielectric materials
+'H2OICE' = CDIEL*6 (TABLES,H2OICE,H2OLIQ; if TABLES, then filenames follow...)
+'**** CONJUGATE GRADIENT DEFINITIONS ****'
+0 = INIT (TO BEGIN WITH |X0> = 0)
+1e-05 = TOL = MAX ALLOWED (NORM OF |G>=AC|E>-ACA|X>)/(NORM OF AC|E>)
+'**** Angular resolution for calculation of <cos>, etc. ****'
+0.5 = ETASCA (number of angles is proportional to [(3+x)/ETASCA]^2 )
+'**** Wavelengths (micron) ****'
+6.283185 6.283185 1 'INV' = wavelengths (first,last,how many,how=LIN,INV,LOG)
+'**** Effective Radii (micron) **** '
+2 2 1 'LIN' = eff. radii (first, last, how many, how=LIN,INV,LOG)
+'**** Define Incident Polarizations ****'
+(0,0) (1.,0.) (0.,0.) = Polarization state e01 (k along x axis)
+2 = IORTH  (=1 to do only pol. state e01; =2 to also do orth. pol. state)
+1 = IWRKSC (=0 to suppress, =1 to write ".sca" file for each target orient.
+'**** Prescribe Target Rotations ****'
+0 0 1 = BETAMI, BETAMX, NBETA (beta=rotation around a1)
+0 90 3 = THETMI, THETMX, NTHETA (theta=angle between a1 and k)
+0 0 1 = PHIMIN, PHIMAX, NPHI (phi=rotation angle of a1 around k)
+'**** Specify first IWAV, IRAD, IORI (normally 0 0 0) ****'
+0 0 0 = first IWAV, first IRAD, first IORI (0 0 0 to begin fresh)
+'**** Select Elements of S_ij Matrix to Print ****'
+6 = NSMELTS = number of elements of S_ij to print (not more than 9)
+11 12 21 22 31 41 = indices ij of elements to print
+'**** Specify Scattered Directions ****'
+0 0 180 10 = phi, thetan_min, thetan_max, dtheta (in degrees) for this plane
+90 0 180 10 = phi, thetan_min, thetan_max, dtheta (in degrees) for this plane
