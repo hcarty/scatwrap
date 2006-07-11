@@ -101,7 +101,8 @@ a 'ddscat.par' file for use by ddscat.
 WARNING: The given filenames will be overwritten if they already exist.
 
 Arguments:
-1. OPTIONAL, NAMED - Filename to save the data to.
+- parameter_filename - OPTIONAL, NAMED - Filename to save the parameter data to.
+- shape_filename - OPTIONAL, NAMED - Filename to save the shape data to.
 
 Returns:
 None.
