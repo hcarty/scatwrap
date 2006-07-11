@@ -2,7 +2,7 @@
 
 use Getopt::Long;
 use ScatWrap::DDSCAT;
-use YAML;
+use YAML qw/Dump Load LoadFile DumpFile/;
 use Data::Dumper;
 
 use strict;
@@ -35,7 +35,8 @@ my $shape = ScatWrap::DDSCAT->new( scale      => \%scale );
 $shape->load_shape_from_file( $input_file );
 
 # Save the generated dipoles in a DDA-friendly format.
-$shape->set_default_parameters();
+#$shape->set_default_parameters();
+$shape->parameters( ( LoadFile('test_parameters.yaml') ) );
 $shape->save_dda_data( shape_filename => 'test.dat', parameter_filename => 'test.par' );
 $shape->save_to_database();
 
