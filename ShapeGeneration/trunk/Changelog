@@ -1,3 +1,12 @@
+2006-07-11  Hezekiah M. Carty  <hcarty@0ok.org>
+
+	* Testing updates.  New script to automate some basic tests (TODO- remake
+	it as a proper Perl test).
+	* Test script parameters are now loaded from a YAML file rather than being
+	hardcoded.
+	* Lots of refactoring and cleaning up in the DDSCAT specific stuff.
+	* Some minor tweaks to the IO system - mainly adding transactions.
+
 2006-06-27  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* Added support for CHECK constraints when building initial ScatWrap

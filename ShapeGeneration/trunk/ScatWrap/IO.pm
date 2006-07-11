@@ -21,7 +21,7 @@ use warnings;
 my $DBI_SOURCE = 'dbi:SQLite:dbname=scatwrap.db';
 my $DBI_ATTRIBUTES = {
     RaiseError => 1,
-    AutoCommit => 1,
+    AutoCommit => 0,
 };
 
 has 'dbh' => (
@@ -40,11 +40,12 @@ Description:
 Save the provided data.
 
 Arguments:
+One or more hashrefs, each containing:
 1. Table name to save to - MUST BE LEGITIMATE FOR USE AS A SQL TABLE NAME
 2. Hashref of fields => values.
 
 Returns:
-None.
+The id of the last item inserted (generally the AUTOINCREMENT/PRIMARY KEY value).
 =cut
 sub save {
 
@@ -53,9 +54,35 @@ sub save {
 # Generate the SQL statement
     my ( $statement, @data ) = $self->sql_gen->insert( $data_table, $data );
 
+# This will hold the id of the last inserted item.
+    my $last_id;
+
+# Wrap the database work in an eval {} block to catch any potential errors.
+    eval {
 # Prepare the statement with the database, and apply the change
-    my $statement_handle = $self->dbh->prepare($statement);
-    $statement_handle->execute(@data);
+        my $statement_handle = $self->dbh->prepare($statement);
+        $statement_handle->execute(@data);
+
+        $last_id = $self->dbh->last_insert_id('','','','');
+
+# Make the changes to the database.
+        $self->dbh->commit;
+    };
+    if ($@) {
+        warn "Database transaction failed: $@";
+
+# Roll back the unsuccessful change(s).
+        eval { $self->dbh->rollback };
+        if ($@) {
+            warn "Database rollback failed: $@";
+        }
+
+        die "Freaking out because the database isn't working.";
+    }
+    else {
+# If everything works, return the proper id value.
+        return $last_id;
+    }
 }
 
 =head2 load

@@ -93,7 +93,7 @@ sub ddscat_parameter_data ( $self ) {
     return $output;
 }
 
-=head2 save_dda_data
+=head2 to_file
 Description:
 Write the generated dipole information out to disk in a format usable by
 ddscat.  This should generally be used for writing out a 'shape.dat' file and
@@ -107,7 +107,7 @@ Arguments:
 Returns:
 None.
 =cut
-sub save_dda_data ( $self, +$parameter_filename of Str, +$shape_filename of Str ) {
+sub to_file ( $self, +$parameter_filename of Str, +$shape_filename of Str ) {
 
     # If no filename was given, use a default name.
     $parameter_filename = $parameter_filename
@@ -126,7 +126,7 @@ sub save_dda_data ( $self, +$parameter_filename of Str, +$shape_filename of Str 
     print $PARAMFILE ./ddscat_parameter_data();
 }
 
-=head2 save_to_database
+=head2 to_database
 XXX: Terrible hack!
 Description:
 
@@ -134,19 +134,36 @@ Arguments:
 
 Returns:
 =cut
-sub save_to_database ( $self ) {
+sub to_database ( $self ) {
 
-    ./io->save(
-        'ddscat_shapes',
-        {
-            dda_shape_id => ./origin(),
+    # Keep track of the id value(s) as we move along so that db relational integrity is maintained.
+
+    my $dda_shape_id = ./io->save(
+        dda_shapes => {
+            name => ./name(),
+            description => ./description(),
+            scalex => ./scale()->{x},
+            scaley => ./scale()->{y},
+            scalez => ./scale()->{z},
+            origin => ./origin(),
+            data => Dump(
+                {
+                    objects => ./objects(),
+                    faces => ./faces(),
+                    vertices => ./vertices(),
+                }
+            ),
+        }
+    );
+    my $ddscat_shape_id = ./io->save(
+        ddscat_shapes => {
+            dda_shape_id => $dda_shape_id,
             data => ./ddscat_shape_data(),
         }
     );
     ./io->save(
-        'ddscat_parameters',
-        {
-            ddscat_shape_id => ./origin(),
+        ddscat_parameters => {
+            ddscat_shape_id => $ddscat_shape_id,
             yaml => Dump( ./parameters() ),
             data => ./ddscat_parameter_data(),
         }

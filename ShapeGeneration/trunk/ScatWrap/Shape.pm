@@ -15,6 +15,7 @@ use warnings;
 #----
 has 'name' => ( isa => 'Str', is => 'rw' );
 has 'origin' => ( isa => 'Str', is => 'rw' );
+has 'description' => ( isa => 'Str', is => 'rw' );
 has 'scale' => (
     isa => 'HashRef',
     is => 'rw',

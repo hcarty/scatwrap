@@ -2,10 +2,12 @@
 	[_] Check the different routines for consistency in coordinate handling.
 		: Array vs Hash
 	[_] Change code to use Carp::confess for errors rather than die.
-		: It's more expressive and gives a backtrace.
+		: It's more expressive and gives a back trace.
 	[X] Add the AUTO_INCREMENT tags to the table id's.
 		: This is done automatically in SQLite when a column is declared as
 		: INTEGER PRIMARY KEY.  The value is then guaranteed to be unique.
+	[_] Find fixes for Perl6::* classes.
+		: The source filtering breaks POD handling, apparently...
 
 -=- New Code
 	[_] Create a data(base) module.
@@ -19,7 +21,7 @@
 		: as inherit + pass on database routines for data loading/saving/etc.
 	[_] Use YAML for data dumping and testing.
 		[X] Implement in test script for ScatWrap::Shape dumping.
-		[_] Implement a YAML backend for the data(base) module.
+		[_] Implement a YAML back end for the data(base) module.
 		[_] Add an option to dump all generated data to YAML.
 			: This could be a sort of safety net in case something goes wrong
 			: with the database being used.  It would reduce the chances of
