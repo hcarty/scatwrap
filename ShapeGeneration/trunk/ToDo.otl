@@ -8,6 +8,14 @@
 		: INTEGER PRIMARY KEY.  The value is then guaranteed to be unique.
 	[_] Find fixes for Perl6::* classes.
 		: The source filtering breaks POD handling, apparently...
+		: Not to mention breaking the syntax highlighting of most editors.
+	[_] Calculate surface area of objects.
+		: Need to take in to account the fact that faces/shapes can overlap.
+	[_] Calculate projected cross sectional area of objects.
+		: Orthogonal projection, of course.
+	[_] Look at Error.pm for error handlingLook at Error.pm for error handling.
+		: A possibly cleaner/better way of handling errors.  Low priority at
+		: this point though - die/eval work well enough for the time being.
 
 -=- New Code
 	[_] Create a data(base) module.
