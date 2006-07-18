@@ -9,7 +9,7 @@ use strict;
 use warnings;
 
 # Handle command line arguments, with sane default values usable in testing.
-my $input_file  = 'HexagonalRosette.obj';
+my $input_file  = 'Shapes/HexagonalRosette.obj';
 my %scale = (
     x => 1,
     y => 1,
