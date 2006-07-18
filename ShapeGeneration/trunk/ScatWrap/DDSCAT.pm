@@ -101,6 +101,8 @@ a 'ddscat.par' file for use by ddscat.
 WARNING: The given filenames will be overwritten if they already exist.
 
 Arguments:
+NOTE: If no values are provided, the subroutine will default to what ddscat
+expects for input.
 - parameter_filename - OPTIONAL, NAMED - Filename to save the parameter data to.
 - shape_filename - OPTIONAL, NAMED - Filename to save the shape data to.
 
@@ -168,6 +170,34 @@ sub to_database ( $self ) {
             data => ./ddscat_parameter_data(),
         }
     );
+}
+
+=head2 run_ddscat
+Description:
+Run the actual ddscat executable, using the current object's data.
+NOTE: TODO: XXX: ASSUMES THE ddscat EXECUTABLE IS IN THE CURRENT DIRECTORY.
+
+Arguments:
+None.
+
+Returns:
+None.
+=cut
+sub run_ddscat {
+
+    # Save the information out to a file which ddscat can use.
+    ./to_file();
+
+    # TODO: Handle the fact that the ddscat bin may not be in the current directory...
+    my $ddscat_output = `./ddscat`;
+
+    # TODO: DEBUGGING, don't really need this line??  Something /real/ should be done with this.
+    print "---- OUTPUT FROM DDSCAT ----\n$ddscat_output\n---- END OUTPUT ----\n"
+        if $ddscat_output;
+
+    my @ddscat_output_files = qw//;
+
+    die "I'm nowhere near finished...";
 }
 
 1;
