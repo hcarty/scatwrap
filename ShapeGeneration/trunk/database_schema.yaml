@@ -163,3 +163,53 @@ database_tables:
       type: TEXT
     - name: data
       type: TEXT
+  ddscat_runs:
+    - name: id
+      type: INTEGER PRIMARY KEY
+    - name: timestamp
+      type: DATETIME
+      default: CURRENT_TIMESTAMP
+    - name: description
+      type: VARCHAR(255)
+  ddscat_output_logs:
+    - name: id
+      type: INTEGER PRIMARY KEY
+    - name: ddscat_run_id
+      type: INTEGER
+    - name: data
+      type: TEXT
+  ddscat_output_mtable:
+    - name: id
+      type: INTEGER PRIMARY KEY
+    - name: ddscat_run_id
+      type: INTEGER
+    - name: data
+      type: TEXT
+  ddscat_output_qtable:
+    - name: id
+      type: INTEGER PRIMARY KEY
+    - name: ddscat_run_id
+      type: INTEGER
+    - name: data
+      type: TEXT
+  ddscat_output_qtable2:
+    - name: id
+      type: INTEGER PRIMARY KEY
+    - name: ddscat_run_id
+      type: INTEGER
+    - name: data
+      type: TEXT
+  ddscat_output_sca:
+    - name: id
+      type: INTEGER PRIMARY KEY
+    - name: ddscat_run_id
+      type: INTEGER
+    - name: data
+      type: TEXT
+  ddscat_output_avg:
+    - name: id
+      type: INTEGER PRIMARY KEY
+    - name: ddscat_run_id
+      type: INTEGER
+    - name: data
+      type: TEXT

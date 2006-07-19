@@ -188,36 +188,33 @@ sub run_ddscat ( $self ) {
     # Save the information out to a file which ddscat can use.
     ./to_file();
 
-    # TODO: Allow for an arbitrarily positioned ddscat executable...
+    # TODO: Allow for an arbitrarily positioned ddscat executable...  This just needs a general cleanup.
 
-    {
-        # Go to where the ddscat magic will happen.
-        use Cwd;
-        my $original_directory = getcwd();
-        chdir 'ddscat'
-            or die "Shit, yo: $!";
-        my $ddscat_output = `bash ddscat.sh`;
+    # Go to where the ddscat magic will happen.
+    # XXX: The 'use' is here because I don't want to keep this method around.
+    use Cwd qw/chdir getcwd/;
+    my $original_directory = getcwd();
+    chdir 'ddscat'
+        or die "Shit, yo: $!";
+    my $ddscat_return_value = `bash ddscat.sh`;
 
-        # TODO: DEBUGGING, don't really need this line??  Something /real/ should be done with this.
-        print "---- OUTPUT FROM DDSCAT ----\n$ddscat_output\n---- END OUTPUT ----\n"
-            if $ddscat_output;
 
-        my %ddscat_output_files = (
-            log => [ glob 'ddscat.log_*' ],
-            mtable => [ 'mtable' ],
-            qtable => [ glob 'qtable*' ],
-            w_sca => [ glob 'w*.sca' ],
-            w_avg => [ glob 'w*.avg' ],
-        );
+    # TODO: DEBUGGING, don't really need this line??  Something /real/ should be done with this.
+    warn "ddscat spat out: $ddscat_return_value"
+        if $ddscat_return_value;
 
-        # Go back home.
-        chdir $original_directory;
+    my %ddscat_output_files = (
+        log => [ glob 'ddscat.log_*' ],
+        mtable => [ glob 'mtable' ],
+        qtable => [ glob 'qtable' ],
+        qtable2 => [ glob 'qtable2' ],
+        w_sca => [ glob 'w*.sca' ],
+        w_avg => [ glob 'w*.avg' ],
+    );
 
-        # Limit the Cwd effects to this local section...
-        no Cwd;
-    }
+    # Go back home.
+    chdir $original_directory;
 
-    getcwd();
     warn "I'm nowhere near finished...";
 }
 

@@ -23,6 +23,10 @@ sub create_table_sql ( $tables of Hash ) {
             for my $column ( @$columns ) {
                 my $column_sql = "$column->{name} $column->{type}";
 
+# Handle DEFAULT values for a column.
+                if ( defined $column->{default} ) {
+                    $column_sql .= " DEFAULT $column->{default}";
+                }
 # Handle CHECK constraints on the column.
                 if ( defined $column->{check} ) {
                     my $check;

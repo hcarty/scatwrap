@@ -1,3 +1,8 @@
+2006-07-19  Hezekiah M. Carty  <hcarty@0ok.org>
+
+	* Starting the process of saving ddscat output.  No analysis or processing
+	has been started though.
+
 2006-07-11  Hezekiah M. Carty  <hcarty@0ok.org>
 
 	* Testing updates.  New script to automate some basic tests (TODO- remake
