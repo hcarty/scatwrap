@@ -175,7 +175,7 @@ sub to_database ( $self ) {
 =head2 run_ddscat
 Description:
 Run the actual ddscat executable, using the current object's data.
-NOTE: TODO: XXX: ASSUMES THE ddscat EXECUTABLE IS IN THE CURRENT DIRECTORY.
+NOTE: TODO: XXX: ASSUMES THE ddscat EXECUTABLE IS IN A FIXED LOCATION...  THIS NEEDS TO BE CONFIGURABLE.
 
 Arguments:
 None.
@@ -183,21 +183,42 @@ None.
 Returns:
 None.
 =cut
-sub run_ddscat {
+sub run_ddscat ( $self ) {
 
     # Save the information out to a file which ddscat can use.
     ./to_file();
 
-    # TODO: Handle the fact that the ddscat bin may not be in the current directory...
-    my $ddscat_output = `./ddscat`;
+    # TODO: Allow for an arbitrarily positioned ddscat executable...
 
-    # TODO: DEBUGGING, don't really need this line??  Something /real/ should be done with this.
-    print "---- OUTPUT FROM DDSCAT ----\n$ddscat_output\n---- END OUTPUT ----\n"
-        if $ddscat_output;
+    {
+        # Go to where the ddscat magic will happen.
+        use Cwd;
+        my $original_directory = getcwd();
+        chdir 'ddscat'
+            or die "Shit, yo: $!";
+        my $ddscat_output = `bash ddscat.sh`;
 
-    my @ddscat_output_files = qw//;
+        # TODO: DEBUGGING, don't really need this line??  Something /real/ should be done with this.
+        print "---- OUTPUT FROM DDSCAT ----\n$ddscat_output\n---- END OUTPUT ----\n"
+            if $ddscat_output;
 
-    die "I'm nowhere near finished...";
+        my %ddscat_output_files = (
+            log => [ glob 'ddscat.log_*' ],
+            mtable => [ 'mtable' ],
+            qtable => [ glob 'qtable*' ],
+            w_sca => [ glob 'w*.sca' ],
+            w_avg => [ glob 'w*.avg' ],
+        );
+
+        # Go back home.
+        chdir $original_directory;
+
+        # Limit the Cwd effects to this local section...
+        no Cwd;
+    }
+
+    getcwd();
+    warn "I'm nowhere near finished...";
 }
 
 1;

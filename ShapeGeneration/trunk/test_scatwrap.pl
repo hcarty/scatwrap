@@ -36,7 +36,10 @@ $shape->load_shape_from_file( $input_file );
 
 # Save the generated dipoles in a DDA-friendly format.
 $shape->parameters( ( LoadFile('test_parameters.yaml') ) );
-$shape->to_file( shape_filename => 'test.dat', parameter_filename => 'test.par' );
-$shape->to_database();
+#$shape->to_file( shape_filename => 'test.dat', parameter_filename => 'test.par' );
+#$shape->to_database();
+
+# Run ddscat on our shiny new dipoles.
+$shape->run_ddscat();
 
 print "Done.\n";
