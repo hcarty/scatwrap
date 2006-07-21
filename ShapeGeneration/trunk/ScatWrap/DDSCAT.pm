@@ -24,6 +24,19 @@ has 'io' => (
 );
 
 has 'parameters' => ( isa => 'HashRef', is => 'rw' );
+has 'results' => ( isa => 'HashRef', is => 'rw' );
+has 'output_filenames' => (
+    isa => 'HashRef',
+    is => 'ro',
+    default => {
+        log => 'ddscat.log_*',
+        mtable => 'mtable',
+        qtable => 'qtable',
+        qtable2 => 'qtable2',
+        wsca => 'w*.sca',
+        wavg => 'w*.avg',
+    }
+);
 
 =head2 ddscat_shape_data
 Description:
@@ -140,6 +153,7 @@ sub to_database ( $self ) {
 
     # Keep track of the id value(s) as we move along so that db relational integrity is maintained.
 
+    # First, save the input information.
     my $dda_shape_id = ./io->save(
         dda_shapes => {
             name => ./name(),
@@ -163,13 +177,33 @@ sub to_database ( $self ) {
             data => ./ddscat_shape_data(),
         }
     );
-    ./io->save(
+    my $ddscat_parameter_id = ./io->save(
         ddscat_parameters => {
             ddscat_shape_id => $ddscat_shape_id,
             yaml => Dump( ./parameters() ),
             data => ./ddscat_parameter_data(),
         }
     );
+
+    # Now, save the result(s) of the run.
+    my $ddscat_run_id = ./io->save(
+        ddscat_runs => {
+            ddscat_parameter_id => $ddscat_parameter_id,
+            description => "A run for me!",
+        }
+    );
+    # Each of these items are saved separately, but they each have the same db structure.
+    for my $data_type ( keys %{ ./results() } ) {
+        for my $data ( @{ ./results()->{ $data_type } } ) {
+            ./io->save(
+                "ddscat_output_$data_type" => {
+                    ddscat_run_id => $ddscat_run_id,
+                    filename => $data->{name},
+                    data => $data->{data},
+                }
+            );
+        }
+    }
 }
 
 =head2 run_ddscat
@@ -203,19 +237,30 @@ sub run_ddscat ( $self ) {
     warn "ddscat spat out: $ddscat_return_value"
         if $ddscat_return_value;
 
-    my %ddscat_output_files = (
-        log => [ glob 'ddscat.log_*' ],
-        mtable => [ glob 'mtable' ],
-        qtable => [ glob 'qtable' ],
-        qtable2 => [ glob 'qtable2' ],
-        w_sca => [ glob 'w*.sca' ],
-        w_avg => [ glob 'w*.avg' ],
-    );
+    my %ddscat_output_filenames;
+    for my $key ( keys %{ ./output_filenames() } ) {
+        $ddscat_output_filenames{ $key } = [ glob ./output_filenames()->{$key} ];
+    }
+
+    my %ddscat_output_data;
+    for my $key (keys %ddscat_output_filenames) {
+        for my $filename (@{ $ddscat_output_filenames{ $key } }) {
+            # TODO: Handle this better - we should be able to continue somehow from here if the output can't be read.
+            open my $INFILE, $filename
+                or die "Unable to open DDSCAT output file $filename: $!";
+
+            push @{ $ddscat_output_data{ $key } }, {
+                name => $filename,
+                data => join( "", <$INFILE> )
+            };
+        }
+    }
 
     # Go back home.
     chdir $original_directory;
 
-    warn "I'm nowhere near finished...";
+    # Save the results.
+    ./results(\%ddscat_output_data);
 }
 
 1;

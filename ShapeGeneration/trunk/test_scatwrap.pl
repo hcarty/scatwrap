@@ -33,13 +33,14 @@ if ( $scale{uniform} ) {
 # Create the shape object and load the information from disk.
 my $shape = ScatWrap::DDSCAT->new( scale      => \%scale );
 $shape->load_shape_from_file( $input_file );
+$shape->parameters( ( LoadFile('test_parameters.yaml') ) );
 
 # Save the generated dipoles in a DDA-friendly format.
-$shape->parameters( ( LoadFile('test_parameters.yaml') ) );
 #$shape->to_file( shape_filename => 'test.dat', parameter_filename => 'test.par' );
-#$shape->to_database();
 
 # Run ddscat on our shiny new dipoles.
 $shape->run_ddscat();
+
+$shape->to_database();
 
 print "Done.\n";
