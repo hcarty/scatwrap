@@ -11,13 +11,17 @@ use PDL;
 use strict;
 use warnings;
 
-####
-#
-# Description:
-# Take 3 points, [ $p1 $p2 $p3 ], and come up with the equation for the plane
-# which contains those points.
-#
-####
+=head2 create_plane
+Description:
+Takes 3 points and comes up with the equation for the plane which contains
+those points.
+
+Arguments:
+1-3. Array-refs holding the points - ie. $p1->[0] = x-val, $p1->[1] = y-val, etc.
+
+Returns:
+The A,B,C,D coefficients for the generated plane.
+=cut
 sub create_plane {
 
     my ( $p1, $p2, $p3 ) = @_;
@@ -38,14 +42,18 @@ sub create_plane {
     return $A->at(0), $B->at(0), $C->at(0), $D->at(0);
 }
 
-####
-#
-# Description:
-# Find the normal to a face/plane defined by 3 points.
-# THE ORDER OF THE POINTS IS IMPORTANT.  If you want considtent normals, you
-# MUST use consistent windings.
-#
-####
+=head2 plane_normal
+Description:
+Find the normal to a face/plane given 3 points.
+NOTE - I<THE ORDER OF THE POINTS IS IMPORTANT.>  If you want consistent normals
+you I<MUST> use consistent windings.
+
+Arguments:
+1-3. Array-refs holding the points.  See C<create_plane> above.
+
+Returns:
+A normalized vector which is normal to the given plane.
+=cut
 sub plane_normal {
 
     my ( $p1, $p2, $p3 ) = @_;
@@ -59,22 +67,21 @@ sub plane_normal {
     return list( norm( crossp( $vector2, $vector1 ) ) );
 }
 
-####
-#
-# Description:
-# Check a point to see if it is inside the given faces.
-#
-# Arguments:
-# 1. The point we are checking, in the format: [ x, y, z ].
-# 2. A set of faces which set the object bounds.  Must be closed!
-#    It only works on a SINGLE closed, convex set of faces.
-#
-# Returns:
-# true if the point is inside the faces
-# else
-# undef if the point is outside
-#
-####
+=head2 point_inside
+Description:
+Check a point to see if it is inside the given faces.
+
+Arguments:
+1. The point we are checking (arrayref -- [x, y, z]).
+2. A set of faces which define the object bounds.  The checked object must be
+closed and convex - this routine only works for a single, closed, convex
+object.
+
+Returns:
+true if the point is inside the faces
+else
+undef if the point is outside
+=cut
 sub point_inside {
 
     my ( $point, $faces ) = @_;
@@ -95,36 +102,32 @@ sub point_inside {
     return 1;
 }
 
-####
-#
-# Description:
-# Calculate the dot product of two 3-element pdls.
-#
-# Arguments:
-# 1-2. Two 3 element pdls
-#
-# Returns:
-# A scalar value (the dot product)
-#
-####
+=head2 _dot_product
+Description:
+Calculate the dot product of two 3-element pdls.
+
+Arguments:
+1-2. Two 3 element pdls
+
+Returns:
+A scalar value (the dot product of the given pdls).
+=cut
 sub _dot_product {
 
     return sum( $_[0] * $_[1] );
 }
 
-####
-#
-# Description:
-# Create a set of dipoles based on a given set of faces.
-#
-# Arguments:
-# 1. Array of faces.
-# 2. Resolution for dipole creation.
-#
-# Returns:
-# An array of [x y z] dipole coordinates.
-#
-####
+=head2 create_dipoles
+Description:
+Create a set of dipoles based on a given set of faces.
+
+Arguments:
+1. Array of faces.
+2. Resolution for dipole creation.
+
+Returns:
+An array of [x, y, z] dipole coordinates.
+=cut
 sub create_dipoles {
 
     my ( $faces, $resolution ) = @_;
