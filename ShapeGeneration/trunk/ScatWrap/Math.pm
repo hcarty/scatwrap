@@ -135,7 +135,7 @@ sub create_dipoles {
     # The max and min values for each axis.
     my ( $x_max, $x_min, $y_max, $y_min, $z_max, $z_min ) = ( 0, 0, 0, 0, 0, 0 );
 
-    # Find the spatial exten of the object.
+    # Find the spatial extent of the object.
     foreach my $face ( @$faces ) {
         foreach my $vertex ( @{ $face->{vertices} } ) {
             if    ( $vertex->[0] < $x_min ) { $x_min = int( $vertex->[0] ) - 1 }
