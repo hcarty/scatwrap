@@ -17,6 +17,9 @@ use warnings;
 
 extends 'ScatWrap::Shape';
 
+# Store the DDSCAT-ready vertices (1x1x1 grid, remove dup's).
+has 'unique_dipoles' => ( isa => 'ArrayRef', is => 'rw' );
+
 has 'io' => (
     isa => 'ScatWrap::IO',
     is => 'ro',
@@ -38,6 +41,36 @@ has 'output_filenames' => (
     }
 );
 
+=head2 load_shape_from_file
+Description:
+This is extended slightly from the ScatWrap::Shape->load_shape_from_file
+routine to automatically compute the unique dipoles within the entire shape.
+
+It leaves the unique dipoles in a form usable by DDSCAT in the C<unique_dipoles>
+attribute.
+
+Arguments:
+See ScatWrap::Shape->load_shape_from_file
+
+Returns:
+See ScatWrap::Shape->load_shape_from_file
+=cut
+after 'load_shape_from_file' => sub {
+    my $self = shift;
+
+    # Convert the dipole vertex coordinates to integer values.
+    my %truncated_vertices;
+    for my $object ( @.objects ) {
+        for my $dipole ( @{ $object->{dipoles} } ) {
+            # Generate a vertex key so that we don't duplicate points.
+            my $vertex_key = join ' ', map { int $_ } @{ $dipole };
+            $truncated_vertices{ $vertex_key } = 1;
+        }
+    }
+
+    ./unique_dipoles( [ keys %truncated_vertices ] );
+};
+
 =head2 ddscat_shape_data
 Description:
 Gives the shape information in a ddscat-usable format.
@@ -52,16 +85,6 @@ Returns:
 =cut
 sub ddscat_shape_data ( $self ) {
 
-    # Convert the vertex coordinates to integer values.
-    my %truncated_vertices;
-    for my $object ( @.objects ) {
-        for my $dipole ( @{ $object->{dipoles} } ) {
-            # Generate a vertex key so that we don't duplicate points.
-            my $vertex_key = join ' ', map { int $_ } @{ $dipole };
-            $truncated_vertices{ $vertex_key } = 1;
-        }
-    }
-
     # The data to return.
     my $shape_data;
 
@@ -69,7 +92,7 @@ sub ddscat_shape_data ( $self ) {
     #XXX: This should be done as a heredoc probably, but this is easier (interpolation) for now.
     $shape_data =
         "Shape information for " . ./origin() . "\n"
-        . scalar( keys %truncated_vertices ) . " = Number of dipoles in the system\n"
+        . scalar( @.unique_dipoles ) . " = Number of dipoles in the system\n"
         . "1 1 1 = x, y, z components of a1\n"
         . "1 1 1 = x, y, z components of a2\n"
         . "Dummy line due to prior non-cubic latice support in ddscat\n"
@@ -79,8 +102,8 @@ sub ddscat_shape_data ( $self ) {
     my $vertex_number = 0;
     my $material = '1 1 1'; # XXX: Allow for anisotropic material??
 
-    for my $vertex_key ( keys %truncated_vertices ) {
-        $shape_data .= ++$vertex_number . " $vertex_key $material\n";
+    for my $dipole ( @.unique_dipoles ) {
+        $shape_data .= ++$vertex_number . " $dipole $material\n";
     }
 
     #TODO: Convert this to use Template::Toolkit or something similar.
