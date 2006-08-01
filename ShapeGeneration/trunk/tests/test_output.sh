@@ -1,5 +1,3 @@
 #!/bin/bash
-for foo in par dat
-do
-    diff test.${foo} tests/GoodResults/test.${foo}
-done
+diff ddscat.par tests/GoodResults/test.par
+diff shape.dat tests/GoodResults/test.dat
