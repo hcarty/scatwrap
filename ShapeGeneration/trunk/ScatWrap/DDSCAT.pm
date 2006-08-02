@@ -11,6 +11,7 @@ use Perl6::Subs;
 use Perl6::Attributes;
 
 use ScatWrap::IO;
+use ScatWrap::Math;
 
 use strict;
 use warnings;
@@ -19,6 +20,7 @@ extends 'ScatWrap::Shape';
 
 # Store the DDSCAT-ready vertices (1x1x1 grid, remove dup's).
 has 'unique_dipoles' => ( isa => 'ArrayRef', is => 'rw' );
+has 'surface_dipoles' => ( isa => 'ArrayRef', is => 'rw' );
 
 has 'io' => (
     isa => 'ScatWrap::IO',
@@ -71,6 +73,11 @@ after 'load_shape_from_file' => sub {
     # XXX There's probably a better way to handle this, rather than joining and re-splitting...
     my @unique_vertices = map { [ split /\s+/ ] } keys %truncated_vertices;
     ./unique_dipoles( [ @unique_vertices ] );
+
+    # Calculate and save the surface dipoles.
+    my @indices = ScatWrap::Math::get_surface_dipoles( ./unique_dipoles() );
+    print @indices . " of " . @unique_vertices . " are on the outside.\n";
+    ./surface_dipoles( [ @.unique_dipoles[ @indices ] ] );
 };
 
 =head2 ddscat_shape_data

@@ -11,6 +11,7 @@ use PDL;
 use strict;
 use warnings;
 
+=head1 DIPOLE CREATION ROUTINES
 =head2 create_plane
 Description:
 Takes 3 points and comes up with the equation for the plane which contains
@@ -158,6 +159,58 @@ sub create_dipoles {
     }
 
     return @dipoles;
+}
+
+=head1 UNSORTED ROUTINES
+=head2 get_surface_dipoles
+Description:
+Given a list of dipoles, tell which ones are on the surface of the given set.
+
+Arguments:
+1. ArrayRef of [x,y,z] dipole coordinate triplets.
+B<NOTE:> The coordinates must be on a unit (1x1x1) grid for this to provide
+accurate results.
+
+Returns:
+XXX A list of the indices of the given dipoles which sit on the surface.
+=cut
+sub get_surface_dipoles {
+
+    my $dipoles = shift;
+
+    # A convenience function to set a key based on a x,y,z coordinate.
+    my $point_key = sub { "$_[0] $_[1] $_[2]" };
+
+    # Make a hash of the vertices -> indices.
+    my %filled_points;
+    for my $index (0 .. scalar(@$dipoles) - 1) {
+        my $key = $point_key->( @{ $dipoles->[ $index ] } );
+        $filled_points{ $key } = $index;
+    }
+
+    my @surface_indices;
+    DIPOLE:
+    for my $dipole (@$dipoles) {
+        my ($x, $y, $z) = @$dipole;
+
+        # A convenience function to set which points to check.
+        my $range = sub { ($_[0] - 1, $_[0] + 1) };
+
+        my $dipole_key = $point_key->( $x, $y, $z );
+        for my $i ( $range->($x) ) {
+            for my $j ( $range->($y) ) {
+                for my $k ( $range->($z) ) {
+                    my $check_key = $point_key->( $i, $j, $k );
+                    unless ( defined $filled_points{ $check_key } ) {
+                        push @surface_indices, $filled_points{ $dipole_key };
+                        next DIPOLE;
+                    }
+                }
+            }
+        }
+    }
+
+    return @surface_indices;
 }
 
 1;
