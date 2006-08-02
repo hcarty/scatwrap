@@ -68,7 +68,9 @@ after 'load_shape_from_file' => sub {
         }
     }
 
-    ./unique_dipoles( [ keys %truncated_vertices ] );
+    # XXX There's probably a better way to handle this, rather than joining and re-splitting...
+    my @unique_vertices = map { [ split /\s+/ ] } keys %truncated_vertices;
+    ./unique_dipoles( [ @unique_vertices ] );
 };
 
 =head2 ddscat_shape_data
