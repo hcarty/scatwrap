@@ -36,14 +36,14 @@ Arguments:
 Returns:
 dies on error.  Use eval for error checking.
 
-#TODO: Add (better) error checking to the file reading routines.  This
+#TODO Add (better) error checking to the file reading routines.  This
 #      is/will be handled by eval + die.
-#TODO: Change this function so that it is a 'generic' shape loading
+#TODO Change this function so that it is a 'generic' shape loading
 #      function, which calls the appropriate function based on the given
 #      file's extension.
-#TODO: Allow the user to pass in a blob of text containing the shape
+#TODO Allow the user to pass in a blob of text containing the shape
 #      information, to make web life easier.
-#TODO: Describe the specifics of the file format used for input.
+#TODO Describe the specifics of the file format used for input.
 =cut
 sub load_shape_from_file ( $self, $input_file ) {
 
@@ -79,7 +79,7 @@ sub load_shape_from_file ( $self, $input_file ) {
     ./add_object($this_object_name);
 
     # Save where the data came from.
-    #XXX: THIS SHOULD BE HANDLED BETTER...
+    #XXX THIS SHOULD BE HANDLED BETTER...
     ./origin( "File: $input_file" );
 }
 
@@ -144,11 +144,11 @@ Arguments:
 Returns:
 None.
 =cut
-#XXX: This should probably be made in to a purely internal function?  Or not??
+#XXX This should probably be made in to a purely internal function?  Or not??
 sub add_object ( $self, $object_name of Str ) {
 
     # Save it, and generate the dipoles while we're at it.
-    # XXX: This is fixed at a 1x1x1 resolution for now, because that's what ddscat wants.
+    # XXX This is fixed at a 1x1x1 resolution for now, because that's what ddscat wants.
     #      It can be changed in the future if needed, but should probably stay this way for now.
     push @.objects, {
                         name    => $object_name,
@@ -160,7 +160,7 @@ sub add_object ( $self, $object_name of Str ) {
     splice @.faces, 0;
 }
 
-# XXX: Purely for debugging...
+# XXX Purely for debugging...
 # Print the shape out on the screen.
 sub dump_shape_to_screen ( $self ) {
 

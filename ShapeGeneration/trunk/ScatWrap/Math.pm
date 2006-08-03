@@ -3,7 +3,7 @@ package ScatWrap::Math;
 =head1 ScatWrap::Math
 =cut
 =head1 TODO
-# TODO: Change all block comments to use POD instead.
+# TODO Change all block comments to use POD instead.
 =cut
 
 use PDL;

@@ -1,13 +1,13 @@
 package ScatWrap::IO;
 
-# TODO: Write REAL documentation.
+# TODO Write REAL documentation.
 =head1 ScatWrap::IO
 This module provides VERY basic database IO.  Just saving data, and reading
 it.  Someone else has to do the dirty work of figuring out WHAT to write and
 WHERE to write it.
 =cut
 =head1 TODO
-# TODO: Add proper type checks for the 'dbh' and 'sql_gen' attributes.  See the Moose docs.
+# TODO Add proper type checks for the 'dbh' and 'sql_gen' attributes.  See the Moose docs.
 =cut
 
 use Moose;
@@ -17,7 +17,7 @@ use SQL::Abstract;
 use strict;
 use warnings;
 
-# XXX: These should probably be moved elsewhere, and either loaded from disk or some other method.
+# XXX These should probably be moved elsewhere, and either loaded from disk or some other method.
 my $DBI_SOURCE = 'dbi:SQLite:dbname=scatwrap.db';
 my $DBI_ATTRIBUTES = {
     RaiseError => 1,
@@ -92,11 +92,11 @@ Load information from the database.
 Arguments:
 1. The data table which contains the information.
 2. Array reference containing the fields to load.
-3. Hash reference containing the restrictions (where foo = 1, etc) -- XXX: See SQL::Abstract docs.
+3. Hash reference containing the restrictions (where foo = 1, etc) -- XXX See SQL::Abstract docs.
 4. Array reference containing the fields to order by in order of precendence.
 
 Returns:
-1. Array reference of hash references containing each result. -- XXX: Spec this.
+1. Array reference of hash references containing each result. -- XXX Spec this.
 Example:
     $result = [
         {

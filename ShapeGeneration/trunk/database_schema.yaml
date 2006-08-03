@@ -25,7 +25,7 @@ database_tables:
     - name: netcdf
       type: CHAR(6)
       check: ALLCDF,ORICDF,NOTCDF
-#XXX: Many other shape ids are possible, but FRMFIL is the only one the software supports at this time.
+#XXX Many other shape ids are possible, but FRMFIL is the only one the software supports at this time.
     - name: shapeid
       type: CHAR(6)
       check: FRMFIL,
@@ -58,7 +58,7 @@ database_tables:
     - name: radii_choice
       type: CHAR(3)
       check: LIN,INV,LOG
-#XXX: Fix the polarization option - make it better!
+#XXX Fix the polarization option - make it better!
     - name: polarization
       type: VARCHAR(32)
     - name: polarization_states
@@ -82,7 +82,7 @@ database_tables:
     - name: num_reported_elements
       type: INTEGER
       check: 1-9
-#XXX: It would be good to add a check on element indices at some point.
+#XXX It would be good to add a check on element indices at some point.
     - name: reported_elements_indices
       type: VARCHAR(64)
   dda_results:

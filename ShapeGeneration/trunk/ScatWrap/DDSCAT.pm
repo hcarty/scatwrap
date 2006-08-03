@@ -1,7 +1,7 @@
 package ScatWrap::DDSCAT;
 
 =head1 ScatWrap::DDSCAT;
-XXX: Write some docs!
+XXX Write some docs!
 =cut
 
 use Moose;
@@ -90,7 +90,7 @@ None.
 Returns:
 1. Text formatted for input to ddscat (though it should probably be written to a file first).
 
-#TODO: Change this function to use Template::Toolkit or some other templating package.
+#TODO Change this function to use Template::Toolkit or some other templating package.
 =cut
 sub ddscat_shape_data ( $self ) {
 
@@ -98,7 +98,7 @@ sub ddscat_shape_data ( $self ) {
     my $shape_data;
 
     # A descriptive header.
-    #XXX: This should be done as a heredoc probably, but this is easier (interpolation) for now.
+    #XXX This should be done as a heredoc probably, but this is easier (interpolation) for now.
     $shape_data =
         "Shape information for " . ./origin() . "\n"
         . scalar( @.unique_dipoles ) . " = Number of dipoles in the system\n"
@@ -109,13 +109,13 @@ sub ddscat_shape_data ( $self ) {
 
     # Now list out all of the vertices.
     my $vertex_number = 0;
-    my $material = '1 1 1'; # XXX: Allow for anisotropic material??
+    my $material = '1 1 1'; # XXX Allow for anisotropic material??
 
     for my $dipole ( @.unique_dipoles ) {
         $shape_data .= ++$vertex_number . " $dipole $material\n";
     }
 
-    #TODO: Convert this to use Template::Toolkit or something similar.
+    #TODO Convert this to use Template::Toolkit or something similar.
     return $shape_data;
 }
 
@@ -174,7 +174,7 @@ sub to_file ( $self, +$parameter_filename of Str, +$shape_filename of Str ) {
 }
 
 =head2 to_database
-XXX: Terrible hack!
+XXX Terrible hack!
 Description:
 
 Arguments:
@@ -241,7 +241,7 @@ sub to_database ( $self ) {
 =head2 run_ddscat
 Description:
 Run the actual ddscat executable, using the current object's data.
-NOTE: TODO: XXX: ASSUMES THE ddscat EXECUTABLE IS IN A FIXED LOCATION...  THIS NEEDS TO BE CONFIGURABLE.
+NOTE: TODO XXX ASSUMES THE ddscat EXECUTABLE IS IN A FIXED LOCATION...  THIS NEEDS TO BE CONFIGURABLE.
 
 Arguments:
 None.
@@ -254,10 +254,10 @@ sub run_ddscat ( $self ) {
     # Save the information out to a file which ddscat can use.
     ./to_file();
 
-    # TODO: Allow for an arbitrarily positioned ddscat executable...  This just needs a general cleanup.
+    # TODO Allow for an arbitrarily positioned ddscat executable...  This just needs a general cleanup.
 
     # Go to where the ddscat magic will happen.
-    # XXX: The 'use' is here because I don't want to keep this method around.
+    # XXX The 'use' is here because I don't want to keep this method around.
     use Cwd qw/chdir getcwd/;
     my $original_directory = getcwd();
     chdir 'ddscat'
@@ -265,7 +265,7 @@ sub run_ddscat ( $self ) {
     my $ddscat_return_value = `bash ddscat.sh`;
 
 
-    # TODO: DEBUGGING, don't really need this line??  Something /real/ should be done with this.
+    # TODO DEBUGGING, don't really need this line??  Something /real/ should be done with this.
     warn "ddscat spat out: $ddscat_return_value"
         if $ddscat_return_value;
 
@@ -277,7 +277,7 @@ sub run_ddscat ( $self ) {
     my %ddscat_output_data;
     for my $key (keys %ddscat_output_filenames) {
         for my $filename (@{ $ddscat_output_filenames{ $key } }) {
-            # TODO: Handle this better - we should be able to continue somehow from here if the output can't be read.
+            # TODO Handle this better - we should be able to continue somehow from here if the output can't be read.
             open my $INFILE, $filename
                 or die "Unable to open DDSCAT output file $filename: $!";
 
