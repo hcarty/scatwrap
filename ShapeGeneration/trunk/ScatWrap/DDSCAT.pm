@@ -21,6 +21,8 @@ extends 'ScatWrap::Shape';
 # Store the DDSCAT-ready vertices (1x1x1 grid, remove dup's).
 has 'unique_dipoles' => ( isa => 'ArrayRef', is => 'rw' );
 has 'surface_dipoles' => ( isa => 'ArrayRef', is => 'rw' );
+# Store the (somewhat fudged?) surface area of the shape.
+has 'surface_area' => ( isa => 'Num', is => 'rw' );
 
 has 'io' => (
     isa => 'ScatWrap::IO',
@@ -75,9 +77,19 @@ after 'load_shape_from_file' => sub {
     ./unique_dipoles( [ @unique_vertices ] );
 
     # Calculate and save the surface dipoles.
-    my @indices = ScatWrap::Math::get_surface_dipoles( ./unique_dipoles() );
-    print @indices . " of " . @unique_vertices . " are on the outside.\n";
-    ./surface_dipoles( [ @.unique_dipoles[ @indices ] ] );
+    my %surface_indices = ScatWrap::Math::get_surface_dipoles( ./unique_dipoles() );
+    ./surface_dipoles( [ @.unique_dipoles[ keys %surface_indices ] ] );
+
+    # Calculate the surface area of the shape.
+    my $sfc_area = 0;
+    for ( keys %surface_indices ) {
+        $sfc_area += $surface_indices{ $_ };
+    }
+    ./surface_area( $sfc_area );
+
+    # XXX DEBUG -- Print out some debugging information.
+    print scalar( keys %surface_indices ) . " of " . @unique_vertices . " are on the outside.\n";
+    print "Total surface area: $sfc_area\n";
 };
 
 =head2 ddscat_shape_data
@@ -112,7 +124,7 @@ sub ddscat_shape_data ( $self ) {
     my $material = '1 1 1'; # XXX Allow for anisotropic material??
 
     for my $dipole ( @.unique_dipoles ) {
-        $shape_data .= ++$vertex_number . " $dipole $material\n";
+        $shape_data .= ++$vertex_number . " @$dipole $material\n";
     }
 
     #TODO Convert this to use Template::Toolkit or something similar.
@@ -199,6 +211,9 @@ sub to_database ( $self ) {
                     objects => ./objects(),
                     faces => ./faces(),
                     vertices => ./vertices(),
+                    surface_dipoles => ./surface_dipoles(),
+                    unique_dipoles => ./unique_dipoles(),
+                    surface_area => ./surface_area(),
                 }
             ),
         }

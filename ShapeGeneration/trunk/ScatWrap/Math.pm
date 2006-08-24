@@ -173,6 +173,11 @@ accurate results.
 
 Returns:
 XXX A list of the indices of the given dipoles which sit on the surface.
+
+TODO Make sure points which have open space around them are really on the
+outside and not just inside of, say, a hollow sphere.
+TODO Determine exactly how much a given dipole should contribute to the surface
+area of a shape.
 =cut
 sub get_surface_dipoles {
 
@@ -188,7 +193,7 @@ sub get_surface_dipoles {
         $filled_points{ $key } = $index;
     }
 
-    my @surface_indices;
+    my %surface_indices;
     DIPOLE:
     for my $dipole (@$dipoles) {
         my ($x, $y, $z) = @$dipole;
@@ -202,15 +207,14 @@ sub get_surface_dipoles {
                 for my $k ( $range->($z) ) {
                     my $check_key = $point_key->( $i, $j, $k );
                     unless ( defined $filled_points{ $check_key } ) {
-                        push @surface_indices, $filled_points{ $dipole_key };
-                        next DIPOLE;
+                        $surface_indices{ $filled_points{ $dipole_key } } += 1;
                     }
                 }
             }
         }
     }
 
-    return @surface_indices;
+    return %surface_indices;
 }
 
 1;
