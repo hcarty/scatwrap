@@ -11,14 +11,20 @@
 		: Not to mention breaking the syntax highlighting of most editors.
 	[_] Calculate surface area of objects.
 		: Need to take in to account the fact that faces/shapes can overlap.
+		[_] Check to make sure points are actually on the outside
+			: Not just on the surface (in case of, say, a hollow sphere).
 	[_] Calculate projected cross sectional area of objects.
 		: Orthogonal projection, of course.
 	[_] Look at Error.pm for error handlingLook at Error.pm for error handling.
 		: A possibly cleaner/better way of handling errors.  Low priority at
 		: this point though - die/eval work well enough for the time being.
+	[_] Write tests!!!
+		: This is very important... rather critical really, to make sure I
+		: don't break things in future revisions.  Some basic stuff is in
+		: place, but nothing reasonable.
 
 -=- New Code
-	[_] Create a data(base) module.
+	[X] Create a data(base) module.
 		: This should probably be separate from the ScatWrap::Shape class
 		: implementation, ie. no inheritance between the two.  It should
 		: instead be a separate class, an object of which can be passed in to
@@ -30,21 +36,23 @@
 	[_] Use YAML for data dumping and testing.
 		[X] Implement in test script for ScatWrap::Shape dumping.
 		[_] Implement a YAML back end for the data(base) module.
-		[_] Add an option to dump all generated data to YAML.
+		[X] Add an option to dump all generated data to YAML.
 			: This could be a sort of safety net in case something goes wrong
 			: with the database being used.  It would reduce the chances of
 			: data loss, and would allow for the system to keep functioning.
-		[_] Add the ability to import YAML formatted data into the db.
+		[X] Add the ability to import YAML formatted data into the db.
 			: This ties in to the above safety net, as well as possibly
 			: allowing people to work on their own items locally, then upload
 			: (possibly gzip'd) a complete YAML file for processing.
+	[_] Write a web frontend.
+		: Pick a good framework to use...
 
 -=- Future Work
 	[_] Move to v6-alpha.pm when it is reasonably stable.
 		: This may not ever happen - Moose may be as close as ScatWrap gets to
 		: Perl6 until Pugs is considered stable.  Error handling is probable
 		: the biggest concern here.
-	[_] Generate proper table IDs for the database tables.
+	[X] Generate proper table IDs for the database tables.
 		: Currently, the code uses the DB's builtin AUTOINCREMENT abilities.
 		: This should (apparently) not be done, so find a better way.  It
 		: works well for a prototype though, and I think only really becomes
