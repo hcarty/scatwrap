@@ -199,7 +199,6 @@ sub get_surface_dipoles {
     }
 
     my %surface_indices;
-    DIPOLE:
     for my $dipole (@$dipoles) {
         my ($x, $y, $z) = @$dipole;
 
