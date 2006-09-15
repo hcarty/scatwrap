@@ -178,6 +178,11 @@ TODO Make sure points which have open space around them are really on the
 outside and not just inside of, say, a hollow sphere.
 TODO Determine exactly how much a given dipole should contribute to the surface
 area of a shape.
+TODO Decide if a "surface area point" should be able to be counted twice... ie
+if (0, 0, 0) is a "surface" point for dipole A, should it also be able to be
+counted as a "surface" point for dipole B?  It would lower the surface area
+calculations on a very rough item, effectively smoothing it out somewhat, but the
+results would probably be more accurate for a smooth object.
 =cut
 sub get_surface_dipoles {
 
@@ -199,7 +204,7 @@ sub get_surface_dipoles {
         my ($x, $y, $z) = @$dipole;
 
         # A convenience function to set which points to check.
-        my $range = sub { ($_[0] - 1, $_[0] + 1) };
+        my $range = sub { ($_[0] - 1 .. $_[0] + 1) };
 
         my $dipole_key = $point_key->( $x, $y, $z );
         for my $i ( $range->($x) ) {
