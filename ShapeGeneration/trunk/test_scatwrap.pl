@@ -14,7 +14,7 @@ my %scale = (
     x => 1,
     y => 1,
     z => 1,
-    uniform => 1,
+    uniform => 0,
 );
 GetOptions( "object-file=s" => \$input_file,
             "scale-x=i" => \$scale{x},
