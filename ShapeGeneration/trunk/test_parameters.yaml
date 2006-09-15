@@ -65,7 +65,7 @@ theta:
 torque: NOTORQ
 wavelengths:
   choice: INV
-  first: 6.283185
-  last: 6.283185
+  first: 3191.48936170212755
+  last: 3191.48936170212755
   num: 1
 write_sca: 1
