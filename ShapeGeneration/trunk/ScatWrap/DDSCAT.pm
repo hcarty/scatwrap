@@ -6,9 +6,7 @@ XXX Write some docs!
 
 use Moose;
 use Template;
-use YAML;
-use Perl6::Subs;
-use Perl6::Attributes;
+use YAML::Syck;
 
 use ScatWrap::IO;
 use ScatWrap::Math;
@@ -66,7 +64,7 @@ after 'load_shape_from_file' => sub {
 
     # Convert the dipole vertex coordinates to integer values.
     my %truncated_vertices;
-    for my $object ( @.objects ) {
+    for my $object ( @{ $self->objects } ) {
         for my $dipole ( @{ $object->{dipoles} } ) {
             # Generate a vertex key so that we don't duplicate points.
             my $vertex_key = join ' ', map { int $_ } @{ $dipole };
@@ -76,18 +74,18 @@ after 'load_shape_from_file' => sub {
 
     # XXX There's probably a better way to handle this, rather than joining and re-splitting...
     my @unique_vertices = map { [ split /\s+/ ] } keys %truncated_vertices;
-    ./unique_dipoles( [ @unique_vertices ] );
+    $self->unique_dipoles( [ @unique_vertices ] );
 
     # Calculate and save the surface dipoles.
-    my %surface_indices = ScatWrap::Math::get_surface_dipoles( ./unique_dipoles() );
-    ./surface_dipoles( [ @.unique_dipoles[ keys %surface_indices ] ] );
+    my %surface_indices = ScatWrap::Math::get_surface_dipoles( $self->unique_dipoles );
+    $self->surface_dipoles( [ @{ $self->unique_dipoles }[ keys %surface_indices ] ] );
 
     # Calculate the surface area of the shape.
     my $sfc_area = 0;
     for ( keys %surface_indices ) {
         $sfc_area += $surface_indices{ $_ };
     }
-    ./surface_area( $sfc_area );
+    $self->surface_area( $sfc_area );
 
     # XXX DEBUG -- Print out some debugging information.
     print scalar( keys %surface_indices ) . " of " . @unique_vertices . " are on the outside.\n";
@@ -104,9 +102,11 @@ None.
 Returns:
 1. Text formatted for input to ddscat (though it should probably be written to a file first).
 
-#TODO Change this function to use Template::Toolkit or some other templating package.
+TODO Change this function to use Template::Toolkit or some other templating package.
 =cut
-sub ddscat_shape_data ( $self ) {
+sub ddscat_shape_data {
+
+    my $self = shift;
 
     # The data to return.
     my $shape_data;
@@ -114,8 +114,8 @@ sub ddscat_shape_data ( $self ) {
     # A descriptive header.
     #XXX This should be done as a heredoc probably, but this is easier (interpolation) for now.
     $shape_data =
-        "Shape information for " . ./origin() . "\n"
-        . scalar( @.unique_dipoles ) . " = Number of dipoles in the system\n"
+        "Shape information for " . $self->origin . "\n"
+        . scalar( @{ $self->unique_dipoles } ) . " = Number of dipoles in the system\n"
         . "1 1 1 = x, y, z components of a1\n"
         . "1 1 1 = x, y, z components of a2\n"
         . "Dummy line due to prior non-cubic latice support in ddscat\n"
@@ -125,7 +125,7 @@ sub ddscat_shape_data ( $self ) {
     my $vertex_number = 0;
     my $material = '1 1 1'; # XXX Allow for anisotropic material??
 
-    for my $dipole ( @.unique_dipoles ) {
+    for my $dipole ( @{ $self->unique_dipoles } ) {
         $shape_data .= ++$vertex_number . " @$dipole $material\n";
     }
 
@@ -143,11 +143,13 @@ None.
 Returns:
 1. Text formatted for input to ddscat (though it should probably be written to a file first).
 =cut
-sub ddscat_parameter_data ( $self ) {
+sub ddscat_parameter_data {
+
+    my $self = shift;
 
     my $template = Template->new();
     my $output = '';
-    $template->process( 'ddscat.par.tt2', ./parameters(), \$output )
+    $template->process( 'ddscat.par.tt2', $self->parameters(), \$output )
         or die "Template processing error: " . $template->error();
     return $output;
 }
@@ -168,7 +170,12 @@ expects for input.
 Returns:
 None.
 =cut
-sub to_file ( $self, +$parameter_filename of Str, +$shape_filename of Str ) {
+sub to_file {
+
+    my $self = shift;
+    my %args = @_;
+    my $parameter_filename = $args{parameter_filename};
+    my $shape_filename = $args{shape_filename};
 
     # If no filename was given, use a default name.
     $parameter_filename = $parameter_filename
@@ -183,8 +190,8 @@ sub to_file ( $self, +$parameter_filename of Str, +$shape_filename of Str ) {
     open my $SHAPEFILE, ">$shape_filename"
         or die "Unable to open $shape_filename for writing: $!";
 
-    print $SHAPEFILE ./ddscat_shape_data();
-    print $PARAMFILE ./ddscat_parameter_data();
+    print $SHAPEFILE $self->ddscat_shape_data();
+    print $PARAMFILE $self->ddscat_parameter_data();
 }
 
 =head2 to_database
@@ -195,56 +202,58 @@ Arguments:
 
 Returns:
 =cut
-sub to_database ( $self ) {
+sub to_database {
+
+    my $self = shift;
 
     # Keep track of the id value(s) as we move along so that db relational integrity is maintained.
 
     # First, save the input information.
-    my $dda_shape_id = ./io->save(
+    my $dda_shape_id = $self->io->save(
         dda_shapes => {
-            name => ./name(),
-            description => ./description(),
-            scalex => ./scale()->{x},
-            scaley => ./scale()->{y},
-            scalez => ./scale()->{z},
-            origin => ./origin(),
+            name => $self->name(),
+            description => $self->description(),
+            scalex => $self->scale()->{x},
+            scaley => $self->scale()->{y},
+            scalez => $self->scale()->{z},
+            origin => $self->origin(),
             data => Dump(
                 {
-                    objects => ./objects(),
-                    faces => ./faces(),
-                    vertices => ./vertices(),
-                    surface_dipoles => ./surface_dipoles(),
-                    unique_dipoles => ./unique_dipoles(),
-                    surface_area => ./surface_area(),
+                    objects => $self->objects(),
+                    faces => $self->faces(),
+                    vertices => $self->vertices(),
+                    surface_dipoles => $self->surface_dipoles(),
+                    unique_dipoles => $self->unique_dipoles(),
+                    surface_area => $self->surface_area(),
                 }
             ),
         }
     );
-    my $ddscat_shape_id = ./io->save(
+    my $ddscat_shape_id = $self->io->save(
         ddscat_shapes => {
             dda_shape_id => $dda_shape_id,
-            data => ./ddscat_shape_data(),
+            data => $self->ddscat_shape_data(),
         }
     );
-    my $ddscat_parameter_id = ./io->save(
+    my $ddscat_parameter_id = $self->io->save(
         ddscat_parameters => {
             ddscat_shape_id => $ddscat_shape_id,
-            yaml => Dump( ./parameters() ),
-            data => ./ddscat_parameter_data(),
+            yaml => Dump( $self->parameters() ),
+            data => $self->ddscat_parameter_data(),
         }
     );
 
     # Now, save the result(s) of the run.
-    my $ddscat_run_id = ./io->save(
+    my $ddscat_run_id = $self->io->save(
         ddscat_runs => {
             ddscat_parameter_id => $ddscat_parameter_id,
             description => "A run for me!",
         }
     );
     # Each of these items are saved separately, but they each have the same db structure.
-    for my $data_type ( keys %{ ./results() } ) {
-        for my $data ( @{ ./results()->{ $data_type } } ) {
-            ./io->save(
+    for my $data_type ( keys %{ $self->results() } ) {
+        for my $data ( @{ $self->results()->{ $data_type } } ) {
+            $self->io->save(
                 "ddscat_output_$data_type" => {
                     ddscat_run_id => $ddscat_run_id,
                     filename => $data->{name},
@@ -266,10 +275,12 @@ None.
 Returns:
 None.
 =cut
-sub run_ddscat ( $self ) {
+sub run_ddscat {
+
+    my $self = shift;
 
     # Save the information out to a file which ddscat can use.
-    ./to_file();
+    $self->to_file();
 
     # TODO Allow for an arbitrarily positioned ddscat executable...  This just needs a general cleanup.
 
@@ -287,8 +298,8 @@ sub run_ddscat ( $self ) {
         if $ddscat_return_value;
 
     my %ddscat_output_filenames;
-    for my $key ( keys %{ ./output_filenames() } ) {
-        $ddscat_output_filenames{ $key } = [ glob ./output_filenames()->{$key} ];
+    for my $key ( keys %{ $self->output_filenames() } ) {
+        $ddscat_output_filenames{ $key } = [ glob $self->output_filenames()->{$key} ];
     }
 
     my %ddscat_output_data;
@@ -309,7 +320,7 @@ sub run_ddscat ( $self ) {
     chdir $original_directory;
 
     # Save the results.
-    ./results(\%ddscat_output_data);
+    $self->results(\%ddscat_output_data);
 }
 
 1;

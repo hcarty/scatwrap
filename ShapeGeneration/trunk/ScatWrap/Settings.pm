@@ -1,6 +1,5 @@
 package ScatWrap::Settings;
 
-use Perl6::Attributes;
 use Moose;
 
 use strict;
@@ -31,14 +30,14 @@ sub _load_settings {
 
     my $yaml_text;
     # Open the file and load the settings from disk.
-    open( my $YAMLIN, ./filename() )
-      or die "Can not open " . ./filename() . ": $!";
+    open( my $YAMLIN, $self->filename() )
+      or die "Can not open " . $self->filename() . ": $!";
     while ( <$YAMLIN> ) { $yaml_text .= $_; }
     close($YAMLIN);
 
     my ($db, $etc) = Load($yaml_text);
-    ./db($db);
-    ./etc($etc);
+    $self->db($db);
+    $self->etc($etc);
 }
 
 1;

@@ -2,7 +2,7 @@
 
 use Getopt::Long;
 use ScatWrap::DDSCAT;
-use YAML qw/Dump Load LoadFile DumpFile/;
+use YAML::Syck qw/Dump Load LoadFile DumpFile/;
 use Data::Dumper;
 
 use strict;

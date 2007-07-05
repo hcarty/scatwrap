@@ -1,7 +1,5 @@
 package ScatWrap::Display;
 
-use Perl6::Subs;
-
 use strict;
 use warnings;
 
