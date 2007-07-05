@@ -19,7 +19,7 @@ has 'description' => ( isa => 'Str', is => 'rw' );
 has 'scale' => (
     isa => 'HashRef',
     is => 'rw',
-    default => { x => 1, y => 1, z => 1 }
+    default => sub { { x => 1, y => 1, z => 1 } }
 );
 has 'objects' => ( isa => 'ArrayRef', is => 'rw' );
 has 'faces' => ( isa => 'ArrayRef', is => 'rw' );

@@ -35,13 +35,15 @@ has 'results' => ( isa => 'HashRef', is => 'rw' );
 has 'output_filenames' => (
     isa => 'HashRef',
     is => 'ro',
-    default => {
-        log => 'ddscat.log_*',
-        mtable => 'mtable',
-        qtable => 'qtable',
-        qtable2 => 'qtable2',
-        wsca => 'w*.sca',
-        wavg => 'w*.avg',
+    default => sub {
+	{
+	    log => 'ddscat.log_*',
+	    mtable => 'mtable',
+	    qtable => 'qtable',
+	    qtable2 => 'qtable2',
+	    wsca => 'w*.sca',
+	    wavg => 'w*.avg',
+	}
     }
 );
 
