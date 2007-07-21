@@ -2,6 +2,7 @@ package ScatWrap::Shape;
 
 use Data::Dumper;
 use Moose;
+use MooseX::Method;
 
 use ScatWrap::Math;
 
@@ -43,7 +44,9 @@ dies on error.  Use eval for error checking.
 #      information, to make web life easier.
 #TODO Describe the specifics of the file format used for input.
 =cut
-sub load_shape_from_file {
+method load_shape_from_file => positional (
+    { isa => 'Str', required => 1 } # $input_file
+) => sub {
 
     my $self = shift;
     my $input_file = shift;
@@ -82,7 +85,7 @@ sub load_shape_from_file {
     # Save where the data came from.
     #XXX THIS SHOULD BE HANDLED BETTER...
     $self->origin( "File: $input_file" );
-}
+};
 
 =head2 add_vertex
 Description:
