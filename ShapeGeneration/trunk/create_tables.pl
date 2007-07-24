@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 
-use YAML qw/Dump LoadFile/;
-use Perl6::Subs;
+use YAML::Syck qw/Dump LoadFile/;
 
 use strict;
 use warnings;
@@ -13,7 +12,9 @@ my $db_schema = LoadFile($filename);
 print join( "\n\n", create_table_sql($db_schema->{database_tables}) ) . "\n";
 
 #TODO Add support for foreign key constraints - either through triggers (SQLite) or add just support so that the SQL can be built for other DBs.
-sub create_table_sql ( $tables of Hash ) {
+sub create_table_sql {
+
+    my $tables = shift;
 
     my @bunch_of_sqls;
     for my $table_name ( keys(%$tables) ) {
