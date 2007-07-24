@@ -6,10 +6,14 @@ package ScatWrap::Math;
 # TODO Change all block comments to use POD instead.
 =cut
 
+use List::Util;
+use Math::Trig;
 use PDL;
 
 use strict;
 use warnings;
+
+use constant PI => 4 * atan2(1,1);
 
 =head1 DIPOLE CREATION ROUTINES
 =head2 create_plane
@@ -219,6 +223,125 @@ sub get_surface_dipoles {
     }
 
     return %surface_indices;
+}
+
+=head2 _distance_between_points
+Description:
+Find the distance between the two given [x,y,z] points.
+
+Arguments:
+1. Point 1 (ArrayRef of [x,y,z])
+2. Point 2 (same as Point 1)
+
+Returns:
+A scalar value (the linear distance between the two points).
+=cut
+sub _distance_between_points {
+
+    my $p1 = shift;
+    my $p2 = shift;
+
+    return sqrt(
+          ($p1->[0] - $p2->[0])**2
+        + ($p1->[1] - $p2->[1])**2
+        + ($p1->[2] - $p2->[2])**2
+    );
+}
+
+=head2 get_projected_cross_section
+Description:
+Calculate the projected cross section of the given set of dipoles.
+
+Arguments:
+1. ArrayRef of [x,y,z] dipole coordinate triplets.
+2. Assumed radius of the dipoles.
+
+Returns:
+Orthogonally projected cross section of the given dipole figure, averaged over
+several angles/orientations.
+
+TODO Allow the user to give either a set of angles to use, or a number of
+angles to iterate over when calculating the cross section.
+
+B<NOTE:> The assumed radius tells the spatial extent of each dipole for
+calculating collision detections.
+=cut
+sub get_projected_cross_section {
+
+    my $dipoles = shift;
+    my $dipole_radius = shift;
+
+    # The max and min values for each axis.
+    my ( $x_max, $x_min, $y_max, $y_min, $z_max, $z_min ) = ( 0, 0, 0, 0, 0, 0 );
+
+    # Find the spatial extent of the object.
+    for my $vertex ( @$dipoles ) {
+        if    ( $vertex->[0] < $x_min ) { $x_min = int( $vertex->[0] ) - 1 }
+        elsif ( $vertex->[0] > $x_max ) { $x_max = int( $vertex->[0] ) + 1 }
+        if    ( $vertex->[1] < $y_min ) { $y_min = int( $vertex->[1] ) - 1 }
+        elsif ( $vertex->[1] > $y_max ) { $y_max = int( $vertex->[1] ) + 1 }
+        if    ( $vertex->[2] < $z_min ) { $z_min = int( $vertex->[2] ) - 1 }
+        elsif ( $vertex->[2] > $z_max ) { $z_max = int( $vertex->[2] ) + 1 }
+    }
+
+    # Find a center point for the dipole collection.
+    my $center = [
+        ( $x_max + $x_min ) / 2,
+        ( $y_max + $y_min ) / 2,
+        ( $z_max + $z_min ) / 2
+    ];
+
+    # Find a reasonably distant point from the center...
+    # TODO FIXME XXX Adjust the ( $dipole_radius * foo ) term to something better?
+    my $radius = List::Util::max(
+            _distance_between_points( $center, [ $x_min, $y_min, $z_min ] ),
+            _distance_between_points( $center, [ $x_max, $y_max, $z_max ] )
+    ) + ( $dipole_radius * 2 );
+    # Now $center and $radius give us a sphere which completely encompasses the crystal.
+
+    # TODO FIXME XXX Set these values to something that scales reasonably with the size of the crystal.
+    my $Z_STEP = $radius / 20;
+    my $PHI_STEP = PI / 20;
+
+    # Move over the sphere to get a relatively even coverage of the crystal.
+    for ( my $z = -($radius); $z <= $radius; $z += $Z_STEP ) {
+        for ( my $phi = 0; $phi < PI; $phi += $PHI_STEP ) {
+            my $theta = asin( $z / $radius );
+            my $x = $radius * cos( $theta ) * cos( $phi );
+            my $y = $radius * cos( $theta ) * sin( $phi );
+
+            print _calculate_projected_cross_section( $dipoles, $dipole_radius, [ $x, $y, $z ], $center ) . "\n";
+        }
+    }
+}
+
+=head2 _calculate_projected_cross_section
+Description:
+Calculates the orthogonally projected cross section of the given dipole cloud
+from/on the given plane.
+
+Arguments:
+1. ArrayRef of dipoles.
+2. Radius of each dipole.
+3. ArrayRef of a point ( [x,y,z] ) on the projection plane.
+4. ArrayRef of the center-point in the crystal ( [x,y,z] ).
+
+Returns:
+A scalar value of the cross sectional area for the crystal on the given plane.
+=cut
+sub _calculate_projected_cross_section {
+
+    my $dipole = shift;
+    my $dipole_radius = shift;
+    my $p1 = shift;
+    my $center = shift;
+
+    # Get a vector normal to the plane, facing the crystal.
+    my $normal = [
+        $center->[0] - $p1->[0],
+        $center->[1] - $p1->[1],
+        $center->[2] - $p1->[2]
+    ];
 }
 
 1;
