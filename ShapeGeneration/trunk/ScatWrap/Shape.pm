@@ -2,7 +2,6 @@ package ScatWrap::Shape;
 
 use Data::Dumper;
 use Moose;
-use MooseX::Method;
 
 use ScatWrap::Math;
 
@@ -44,9 +43,7 @@ dies on error.  Use eval for error checking.
 #      information, to make web life easier.
 #TODO Describe the specifics of the file format used for input.
 =cut
-method load_shape_from_file => positional (
-    { isa => 'Str', required => 1 } # $input_file
-) => sub {
+sub load_shape_from_file {
 
     my $self = shift;
     my $input_file = shift;
