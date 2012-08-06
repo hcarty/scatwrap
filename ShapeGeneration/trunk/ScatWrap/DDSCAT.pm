@@ -289,7 +289,7 @@ sub run_ddscat {
     use Cwd qw/chdir getcwd/;
     my $original_directory = getcwd();
     chdir 'ddscat'
-        or die "Shit, yo: $!";
+        or die "Unable to change to ddscat directory: $!";
     my $ddscat_return_value = `bash ddscat.sh`;
 
 
